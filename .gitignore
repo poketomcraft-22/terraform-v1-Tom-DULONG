@@ -1,0 +1,8 @@
+.env
+.terraform
+*tfstate*
+*tomdulong_keypair*
+*.tfvars
+invetory.ini
+.aws/
+.azure/

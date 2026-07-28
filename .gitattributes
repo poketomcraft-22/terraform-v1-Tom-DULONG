@@ -1,0 +1,34 @@
+# Normalise tout en LF dans le dépôt ; Git décide du rendu local
+* text=auto eol=lf
+# Fichiers qui DOIVENT être en LF, y compris sur disque sous Windows
+*.sh text eol=lf
+*.bash text eol=lf
+*.md text eol=lf
+*.mk text eol=lf
+*.js text eol=lf
+*html text eol=lf
+*.ts text eol=lf
+.env* text eol=lf
+*.json text eol=lf
+Makefile text eol=lf
+*.mk text eol=lf
+*.tf text eol=lf
+*.tfvars text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.css text eol=tf
+Dockerfile text eol=lf
+# Fichiers qui doivent rester en CRLF (scripts Windows)
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+# Binaires : ne jamais toucher
+*.png binary
+*.jpg binary
+*.jpg binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gif binary
+.gitignore text eol=tf
