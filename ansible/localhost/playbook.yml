@@ -7,7 +7,7 @@
         state: "touch"
         path: "{{playbook_dir}}/../../{{item}}"
       loop:
-        - "index.html" 
+        - "index.html"
         - "styles.css"
         - "main.js"
 

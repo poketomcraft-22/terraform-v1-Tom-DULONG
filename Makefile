@@ -1,4 +1,4 @@
-# -============= REPRODUCTIBILITY AND HARDENING =========================================
+# +============= REPRODUCTIBILITY AND HARDENING =========================================
 SHELL := /bin/bash
 .SHELLFLAGS := -eu -o pipefail -c
 # ============ COLOR ANSI ==============================
@@ -11,7 +11,7 @@ GIT_DIR := scripts/git
 ANSIBLE_DIR := ansible
 TF_DIR := terraform
 TF_CHG_DIR := terraform -chdir=$(TF_DIR)
-# =================================================
+# ---================================================
 
 .PHONY: help terraform ansible tf.init git.init ansible.play tf.fmt tf.build tf.destroy
 .DEFAULT_GOAL := help
