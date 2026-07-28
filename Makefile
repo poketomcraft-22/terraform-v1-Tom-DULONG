@@ -1,4 +1,4 @@
-# +============= REPRODUCTIBILITY AND HARDENING =========================================
+# +====++========= REPRODUCTIBILITY AND HARDENING =========================================
 SHELL := /bin/bash
 .SHELLFLAGS := -eu -o pipefail -c
 # ============ COLOR ANSI ==============================
