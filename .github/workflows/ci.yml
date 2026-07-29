@@ -17,6 +17,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 2. Scanner le code avec Gitleaks (action officielle, propre et rapide)
+      # 2. Scanner le code avec Gitleaks
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
+
+      # 3. Rendre le rapport téléchargeable sur GitHub Actions
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        if: always() # Génère le rapport même en cas d'échec
+        with:
+          name: rapport-securite-ci
+          path: README.md
