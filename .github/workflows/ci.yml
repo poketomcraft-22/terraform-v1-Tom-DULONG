@@ -1,6 +1,5 @@
 name: CI Pipeline Security Check
 
-# Le pipeline se déclenche automatiquement à chaque push ou Pull Request
 on:
   push:
     branches: [ "main", "TP-1" ]
@@ -9,22 +8,15 @@ on:
 
 jobs:
   security-audit:
-    runs-on: ubuntu-22.04 # GitHub alloue un serveur Ubuntu virtuel gratuit
+    runs-on: ubuntu-22.04
 
     steps:
-      # Étape 1 : Récupérer le code source du dépôt sur la machine GitHub
-      - name: Checkout repository code
+      # 1. Récupérer le code avec tout l'historique
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Récupère tout l'historique (nécessaire pour que Gitleaks scanne tous les commits)
+          fetch-depth: 0
 
-      # Étape 2 : Installer gitleaks sur la machine de CI
-      - name: Install Gitleaks
-        run: |
-          wget https://github.com/gitleaks/gitleaks/releases/download/v8.24.0/gitleaks_8.24.0_linux_x64.tar.gz
-          tar -xzf gitleaks_8.24.0_linux_x64.tar.gz gitleaks
-          sudo mv gitleaks /usr/local/bin/
-
-      # Étape 3 : Exécuter la commande de ton Makefile
-      - name: Run make secrets
-        run: make secrets
+      # 2. Scanner le code avec Gitleaks (action officielle, propre et rapide)
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
