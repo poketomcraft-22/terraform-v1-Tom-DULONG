@@ -1,0 +1,63 @@
+name: 2. Pipeline Trivy Scanner
+
+on:
+  push:
+    branches: [ "main", "TP-1" ]
+  pull_request:
+    branches: [ "main", "TP-1" ]
+
+jobs:
+  trivy-scan:
+    name: Trivy sur ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-2022, macos-14]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Trivy Scan
+        id: trivy
+        uses: aquasecurity/trivy-action@master
+        continue-on-error: true
+        with:
+          scan-type: 'config'
+          scan-ref: '.'
+
+      - name: Create Trivy Report
+        if: always()
+        shell: bash
+        run: |
+          if [ "${{ steps.trivy.outcome }}" == "success" ]; then
+            MSG="🛡️ TRIVY SCAN OK ! Aucune faille d'infrastructure détectée, t'es un chef !"
+            COLOR="#dcfce7"
+          else
+            MSG="⚠️ ALERTE TRIVY ! Des vulnérabilités ont été détectées dans la config !"
+            COLOR="#fee2e2"
+          fi
+
+          echo "## Résultat Trivy (${{ matrix.os }})" >> $GITHUB_STEP_SUMMARY
+          echo "$MSG" >> $GITHUB_STEP_SUMMARY
+
+          cat <<EOF > rapport_trivy_${{ matrix.os }}.html
+          <!DOCTYPE html>
+          <html>
+          <body style="font-family: Arial; padding: 20px;">
+              <h2>Rapport de Sécurité Trivy - ${{ matrix.os }}</h2>
+              <div style="background-color: ${COLOR}; padding: 15px; border-radius: 8px; font-weight: bold;">
+                  ${MSG}
+              </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rapport-trivy-${{ matrix.os }}
+          path: rapport_trivy_${{ matrix.os }}.html

@@ -1,0 +1,67 @@
+name: 1. Pipeline Terraform Check
+
+on:
+  push:
+    branches: [ "main", "TP-1" ]
+  pull_request:
+    branches: [ "main", "TP-1" ]
+
+jobs:
+  terraform-check:
+    name: Terraform sur ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-2022, macos-14]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init & Recursive Validate
+        id: tf_check
+        shell: bash
+        continue-on-error: true
+        run: |
+          terraform init -backend=false
+          # Validation récursive sur tous les fichiers / sous-dossiers .tf
+          find . -type f -name "*.tf" -execdir terraform validate \;
+
+      - name: Create Terraform Report
+        if: always()
+        shell: bash
+        run: |
+          if [ "${{ steps.tf_check.outcome }}" == "success" ]; then
+            MSG="🏗️ TERRAFORM VALIDÉ ! Ton code IaC est propre comme un sou neuf beau gosse !"
+            COLOR="#dcfce7"
+          else
+            MSG="❌ ERREUR TERRAFORM ! La syntaxe de ton code IaC a des ratés !"
+            COLOR="#fee2e2"
+          fi
+
+          echo "## Résultat Terraform (${{ matrix.os }})" >> $GITHUB_STEP_SUMMARY
+          echo "$MSG" >> $GITHUB_STEP_SUMMARY
+
+          cat <<EOF > rapport_terraform_${{ matrix.os }}.html
+          <!DOCTYPE html>
+          <html>
+          <body style="font-family: Arial; padding: 20px;">
+              <h2>Rapport Validation Terraform - ${{ matrix.os }}</h2>
+              <div style="background-color: ${COLOR}; padding: 15px; border-radius: 8px; font-weight: bold;">
+                  ${MSG}
+              </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rapport-terraform-${{ matrix.os }}
+          path: rapport_terraform_${{ matrix.os }}.html

@@ -1,12 +1,14 @@
-name: CI Pipeline
+name: 3. Pipeline Gitleaks Secrets
 
 on:
   push:
     branches: [ "main", "TP-1" ]
+  pull_request:
+    branches: [ "main", "TP-1" ]
 
 jobs:
-  test:
-    name: Test sur ${{ matrix.os }}
+  gitleaks-scan:
+    name: Gitleaks sur ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -15,22 +17,10 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Code
+      - name: Code Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Terraform Setup
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Check Terraform
-        run: terraform init -backend=false && terraform validate
-
-      - name: Trivy Scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'config'
-          scan-ref: '.'
 
       - name: Install Gitleaks
         shell: bash
@@ -52,42 +42,36 @@ jobs:
         run: |
           gitleaks detect --source . --verbose
 
-      - name: Create HTML Report & Summary
+      - name: Create Gitleaks Report
         if: always()
         shell: bash
         run: |
           if [ "${{ steps.gitleaks.outcome }}" == "success" ]; then
-            MSG="GOOD ! Il n'y a aucun leak, tout va bien beau gosse ! 😎"
+            MSG="🔑 GITLEAKS CLEAN ! Aucun leak de secret trouvé, zéro fuite beau gosse ! 😎"
             COLOR="#dcfce7"
           else
-            MSG="ALERTE ! Il y a des leaks détectés dans le code ! 🚨"
+            MSG="🚨 ALERTE GITLEAKS ! Tu as laissé un secret ou un mot de passe dans le code !"
             COLOR="#fee2e2"
           fi
 
-          # 1. Envoi dans l'interface GitHub Summary
-          echo "## Résultat du scan (${{ matrix.os }})" >> $GITHUB_STEP_SUMMARY
+          echo "## Résultat Gitleaks (${{ matrix.os }})" >> $GITHUB_STEP_SUMMARY
           echo "$MSG" >> $GITHUB_STEP_SUMMARY
 
-          # 2. Génération d'un VRAI fichier HTML lisible par tous les navigateurs
-          cat <<EOF > rapport_${{ matrix.os }}.html
+          cat <<EOF > rapport_gitleaks_${{ matrix.os }}.html
           <!DOCTYPE html>
           <html>
-          <head>
-              <meta charset="utf-8">
-              <title>Rapport ${{ matrix.os }}</title>
-          </head>
-          <body style="font-family: Arial, sans-serif; padding: 20px;">
-              <h2>Rapport de Sécurité CI/CD - OS: ${{ matrix.os }}</h2>
-              <div style="background-color: ${COLOR}; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 14pt;">
+          <body style="font-family: Arial; padding: 20px;">
+              <h2>Rapport Fuites de Secrets Gitleaks - ${{ matrix.os }}</h2>
+              <div style="background-color: ${COLOR}; padding: 15px; border-radius: 8px; font-weight: bold;">
                   ${MSG}
               </div>
           </body>
           </html>
           EOF
 
-      - name: Upload HTML Report
+      - name: Upload Report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: rapport-${{ matrix.os }}
-          path: rapport_${{ matrix.os }}.html
+          name: rapport-gitleaks-${{ matrix.os }}
+          path: rapport_gitleaks_${{ matrix.os }}.html
