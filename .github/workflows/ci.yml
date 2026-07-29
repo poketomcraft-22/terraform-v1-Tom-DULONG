@@ -32,7 +32,6 @@ jobs:
           scan-type: 'config'
           scan-ref: '.'
 
-      # Installation propre et universelle de Gitleaks (sans besoin de licence)
       - name: Install Gitleaks
         shell: bash
         run: |
@@ -46,7 +45,6 @@ jobs:
             choco install gitleaks -y
           fi
 
-      # Execution du scan
       - name: Run Gitleaks
         id: gitleaks
         shell: bash
@@ -54,28 +52,42 @@ jobs:
         run: |
           gitleaks detect --source . --verbose
 
-      # Rapport dans GitHub Summary + Fichier PDF
-      - name: Create Report & PDF
+      - name: Create HTML Report & Summary
         if: always()
         shell: bash
         run: |
           if [ "${{ steps.gitleaks.outcome }}" == "success" ]; then
             MSG="GOOD ! Il n'y a aucun leak, tout va bien beau gosse ! 😎"
+            COLOR="#dcfce7"
           else
             MSG="ALERTE ! Il y a des leaks détectés dans le code ! 🚨"
+            COLOR="#fee2e2"
           fi
 
-          # 1. Envoi dans l'interface GitHub Summary (comme sur ta photo)
+          # 1. Envoi dans l'interface GitHub Summary
           echo "## Résultat du scan (${{ matrix.os }})" >> $GITHUB_STEP_SUMMARY
           echo "$MSG" >> $GITHUB_STEP_SUMMARY
 
-          # 2. Génération du fichier PDF
-          echo -e "%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n\n=== RAPPORT DE SECURITE (${{ matrix.os }}) ===\n$MSG" > rapport_${{ matrix.os }}.pdf
+          # 2. Génération d'un VRAI fichier HTML lisible par tous les navigateurs
+          cat <<EOF > rapport_${{ matrix.os }}.html
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <meta charset="utf-8">
+              <title>Rapport ${{ matrix.os }}</title>
+          </head>
+          <body style="font-family: Arial, sans-serif; padding: 20px;">
+              <h2>Rapport de Sécurité CI/CD - OS: ${{ matrix.os }}</h2>
+              <div style="background-color: ${COLOR}; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 14pt;">
+                  ${MSG}
+              </div>
+          </body>
+          </html>
+          EOF
 
-      # Téléchargement de l'artefact PDF
-      - name: Upload PDF
+      - name: Upload HTML Report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: rapport-pdf-${{ matrix.os }}
-          path: rapport_${{ matrix.os }}.pdf
+          name: rapport-${{ matrix.os }}
+          path: rapport_${{ matrix.os }}.html
