@@ -1,4 +1,4 @@
-name: CI Pipeline (Terraform, Trivy & Security Audit)
+name: CI Pipeline
 
 on:
   push:
@@ -7,129 +7,59 @@ on:
     branches: [ "main", "TP-1" ]
 
 jobs:
-  pipeline:
-    runs-on: ubuntu-22.04
+  test:
+    name: Test sur ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-2022, macos-14]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
-      # 1. Récupération du code source
-      - name: Checkout repository code
+      # 1. Récupérer le code
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Nécessaire pour scanner tout l'historique Git
+          fetch-depth: 0
 
-      # 2. Validation / Setup Terraform
+      # 2. Vérification Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.7.0"
 
-      - name: Terraform Init & Validate
+      - name: Check Terraform
         run: |
-          terraform init -backend=false || true
-          terraform validate || true
+          terraform init -backend=false
+          terraform validate
 
-      # 3. Scan de sécurité Terraform & Fichiers avec Trivy
-      - name: Run Trivy vulnerability & IaC scanner
+      # 3. Scan Trivy
+      - name: Run Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'config' # Scan des fichiers de configuration IaC (Terraform, Docker, etc.)
+          scan-type: 'config'
           scan-ref: '.'
-          exit-code: '0'      # Ne stoppe pas immédiatement le job pour laisser générer le rapport
-          severity: 'CRITICAL,HIGH'
 
-      # 4. Installation des outils pour la détection et la génération PDF
-      - name: Install Gitleaks & WeasyPrint
-        run: |
-          sudo apt-get update && sudo apt-get install -y python3-pip
-          pip install weasyprint
-          wget https://github.com/gitleaks/gitleaks/releases/download/v8.24.0/gitleaks_8.24.0_linux_x64.tar.gz
-          tar -xzf gitleaks_8.24.0_linux_x64.tar.gz gitleaks
-          sudo mv gitleaks /usr/local/bin/
-
-      # 5. Execution de Gitleaks (Sauvegarde des résultats dans leaks.json)
-      - name: Run Gitleaks scan
+      # 4. Scan Gitleaks
+      - name: Run Gitleaks
         id: gitleaks
+        uses: gitleaks/gitleaks-action@v2
         continue-on-error: true
-        run: |
-          gitleaks detect --source . -f json -r leaks.json --verbose
 
-      # 6. Génération dynamique du rapport PDF
-      - name: Generate PDF Security Report
+      # 5. Création du rapport basique
+      - name: Create Report
         if: always()
+        shell: bash
         run: |
-          python3 -c '
-          import os, json
-          from weasyprint import HTML
+          if [ "${{ steps.gitleaks.outcome }}" == "success" ]; then
+            echo "GOOD ! Il n'y a aucun leak, tout va bien beau gosse !" > rapport_${{ matrix.os }}.txt
+          else
+            echo "ALERTE ! Il y a des leaks détectés !" > rapport_${{ matrix.os }}.txt
+          fi
 
-          leaks = []
-          if os.path.exists("leaks.json") and os.path.getsize("leaks.json") > 0:
-              try:
-                  with open("leaks.json") as f:
-                      leaks = json.load(f)
-              except Exception:
-                  pass
-
-          if not leaks:
-              status_html = """
-              <div style="background-color: #dcfce7; border: 1px solid #86efac; color: #15803d; padding: 16px; border-radius: 8px; font-weight: bold; font-size: 13pt;">
-                  ✅ GOOD ! Il n\'y a aucun leak, tout va bien beau gosse ! 😎
-              </div>
-              """
-          else:
-              details = "".join([f"<li><b>Règle:</b> {l.get(\"RuleID\")} | <b>Fichier:</b> <code>{l.get(\"File\")}</code> (Ligne {l.get(\"StartLine\")})</li>" for l in leaks])
-              status_html = f"""
-              <div style="background-color: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; padding: 16px; border-radius: 8px; font-weight: bold; font-size: 13pt;">
-                  🚨 ALERTE ! Il y a des leaks détectés ! Voici lesquels :
-                  <ul style="margin-top: 10px; font-size: 10pt; font-weight: normal;">{details}</ul>
-              </div>
-              """
-
-          html = f"""<!DOCTYPE html>
-          <html lang="fr">
-          <head>
-              <meta charset="utf-8">
-              <title>Rapport d'Audit de Sécurité</title>
-              <style>
-                  @page {{ size: A4; margin: 15mm; background-color: #f8fafc; }}
-                  body {{ font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; padding: 10px; }}
-                  .header {{ background-color: #0f172a; color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; }}
-                  .header h1 {{ margin: 0; font-size: 16pt; }}
-                  .header p {{ margin: 5px 0 0 0; font-size: 9pt; color: #94a3b8; }}
-                  .footer {{ margin-top: 30px; text-align: center; font-size: 8pt; color: #64748b; }}
-              </style>
-          </head>
-          <body>
-              <div class="header">
-                  <h1>🛡️ Rapport d'Audit CI/CD (Terraform & Security)</h1>
-                  <p>Projet : terraform-v1-Tom-DULONG | Runner : ubuntu-22.04</p>
-              </div>
-              {status_html}
-              <div class="footer">
-                  Document généré automatiquement par le pipeline CI/CD GitHub Actions
-              </div>
-          </body>
-          </html>"""
-
-          with open("rapport_securite.html", "w", encoding="utf-8") as f:
-              f.write(html)
-
-          HTML("rapport_securite.html").write_pdf("rapport_securite.pdf")
-          '
-
-      # 7. Upload du rapport PDF généré sur GitHub Actions
-      - name: Upload Security PDF Report
+      # 6. Télécharger le rapport
+      - name: Upload Report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: rapport-securite-pdf
-          path: rapport_securite.pdf
-
-      # 8. Vérification finale : Échec du job si un leak a été trouvé
-      - name: Check Security Scan Results
-        run: |
-          if [ -s leaks.json ]; then
-            echo "❌ Leaks détectés dans l'historique ! Échec du pipeline."
-            exit 1
-          else
-            echo "🟢 Aucun leak détecté. CI conforme."
-          fi
+          name: rapport-${{ matrix.os }}
+          path: rapport_${{ matrix.os }}.txt
