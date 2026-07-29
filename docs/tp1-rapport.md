@@ -24,6 +24,6 @@ Dans l'incident `tj-actions/changed-files`, le compte du mainteneur a été comp
 
 ### 4. Citez trois éléments du dépôt qui relèvent de la gestion de configuration au sens ITIL du terme.
 Au sens ITIL (Gouvernance et Service Management), un élément de configuration (CI) est un composant qui doit être géré et contrôlé pour délivrer un service de manière fiable et répétable :
-1. **`.gitattributes`** : Définit la politique de normalisation de l'environnement (gestion obligatoire des fins de ligne LF/CRLF sur tous les OS)[cite: 2].
-2. **`Makefile`** : Spécifie le moteur d'exécution (SHELL, flags) et standardise l'interface des opérations d'ingénierie (lint, secrets, clean)[cite: 2].
-3. **`.pre-commit-config.yaml`** : Formalise le référentiel d'outils de qualité et de sécurité exigé pour garantir la conformité du code source[cite: 1, 2].
+1. **`.gitattributes`** : Définit la politique de normalisation de l'environnement (gestion obligatoire des fins de ligne LF/CRLF sur tous les OS).
+2. **`Makefile`** : Spécifie le moteur d'exécution (SHELL, flags) et standardise l'interface des opérations d'ingénierie (lint, secrets, clean).
+3. **`.pre-commit-config.yaml`** : Formalise le référentiel d'outils de qualité et de sécurité exigé pour garantir la conformité du code source.
