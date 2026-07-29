@@ -20,36 +20,59 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Terraform
+      - name: Terraform Setup
         uses: hashicorp/setup-terraform@v3
 
       - name: Check Terraform
         run: terraform init -backend=false && terraform validate
 
-      - name: Trivy
+      - name: Trivy Scan
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'config'
           scan-ref: '.'
 
-      - name: Gitleaks
-        id: gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        continue-on-error: true
+      # Installation propre et universelle de Gitleaks (sans besoin de licence)
+      - name: Install Gitleaks
+        shell: bash
+        run: |
+          if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
+            wget -q https://github.com/gitleaks/gitleaks/releases/download/v8.18.2/gitleaks_8.18.2_linux_x64.tar.gz
+            tar -xzf gitleaks_8.18.2_linux_x64.tar.gz gitleaks
+            sudo mv gitleaks /usr/local/bin/
+          elif [[ "${{ matrix.os }}" == "macos-14" ]]; then
+            brew install gitleaks
+          elif [[ "${{ matrix.os }}" == "windows-2022" ]]; then
+            choco install gitleaks -y
+          fi
 
-      # Génération du rapport PDF basique sans Python
-      - name: Create PDF Report
+      # Execution du scan
+      - name: Run Gitleaks
+        id: gitleaks
+        shell: bash
+        continue-on-error: true
+        run: |
+          gitleaks detect --source . --verbose
+
+      # Rapport dans GitHub Summary + Fichier PDF
+      - name: Create Report & PDF
         if: always()
         shell: bash
         run: |
           if [ "${{ steps.gitleaks.outcome }}" == "success" ]; then
             MSG="GOOD ! Il n'y a aucun leak, tout va bien beau gosse ! 😎"
           else
-            MSG="ALERTE ! Il y a des leaks détectés dans le code !"
+            MSG="ALERTE ! Il y a des leaks détectés dans le code ! 🚨"
           fi
+
+          # 1. Envoi dans l'interface GitHub Summary (comme sur ta photo)
+          echo "## Résultat du scan (${{ matrix.os }})" >> $GITHUB_STEP_SUMMARY
+          echo "$MSG" >> $GITHUB_STEP_SUMMARY
+
+          # 2. Génération du fichier PDF
           echo -e "%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n\n=== RAPPORT DE SECURITE (${{ matrix.os }}) ===\n$MSG" > rapport_${{ matrix.os }}.pdf
 
-      # Envoi de l'artefact PDF
+      # Téléchargement de l'artefact PDF
       - name: Upload PDF
         uses: actions/upload-artifact@v4
         if: always()
