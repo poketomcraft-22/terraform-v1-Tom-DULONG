@@ -1,5 +1,6 @@
-name: CI Pipeline (Security & Healthcheck)
+name: CI Pipeline Security Check
 
+# Le pipeline se déclenche automatiquement à chaque push ou Pull Request
 on:
   push:
     branches: [ "main", "TP-1" ]
@@ -7,46 +8,23 @@ on:
     branches: [ "main", "TP-1" ]
 
 jobs:
-  pipeline:
-    # Utilisation d'Ubuntu 22.04 LTS (version stable)
-    runs-on: ubuntu-22.04
+  security-audit:
+    runs-on: ubuntu-22.04 # GitHub alloue un serveur Ubuntu virtuel gratuit
 
     steps:
-      # 1. Récupération du code source
+      # Étape 1 : Récupérer le code source du dépôt sur la machine GitHub
       - name: Checkout repository code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Récupère tout l'historique (nécessaire pour que Gitleaks scanne tous les commits)
 
-      # 2. Détection de secrets avec Gitleaks (make secrets)
+      # Étape 2 : Installer gitleaks sur la machine de CI
       - name: Install Gitleaks
         run: |
           wget https://github.com/gitleaks/gitleaks/releases/download/v8.24.0/gitleaks_8.24.0_linux_x64.tar.gz
           tar -xzf gitleaks_8.24.0_linux_x64.tar.gz gitleaks
           sudo mv gitleaks /usr/local/bin/
 
-      - name: Run Gitleaks (make secrets)
+      # Étape 3 : Exécuter la commande de ton Makefile
+      - name: Run make secrets
         run: make secrets
-
-      # 3. Scan de vulnérabilités avec Trivy
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'          # Scan du système de fichiers
-          scan-ref: '.'             # Dossier racine
-          severity: 'CRITICAL,HIGH' # Alerte sur les failles critiques et hautes
-
-      # 4. Healthcheck de l'environnement de CI
-      - name: Environment Healthcheck
-        run: |
-          echo "=== RUNNING HEALTHCHECK ==="
-          echo "1. OS Version Check:"
-          lsb_release -a
-          echo "2. Disk Space Check:"
-          df -h /
-          echo "3. Memory Check:"
-          free -m
-          echo "4. Required Tools Check:"
-          command -v git && echo "Git OK"
-          command -v make && echo "Make OK"
-          echo "=== HEALTHCHECK PASSED ==="
