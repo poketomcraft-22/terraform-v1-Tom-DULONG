@@ -39,13 +39,29 @@ jobs:
           scan-type: 'config'
           scan-ref: '.'
 
-      # 4. Scan Gitleaks
+      # 4. Installation universelle de Gitleaks selon l'OS
+      - name: Install Gitleaks
+        shell: bash
+        run: |
+          if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
+            wget https://github.com/gitleaks/gitleaks/releases/download/v8.24.0/gitleaks_8.24.0_linux_x64.tar.gz
+            tar -xzf gitleaks_8.24.0_linux_x64.tar.gz gitleaks
+            sudo mv gitleaks /usr/local/bin/
+          elif [[ "${{ matrix.os }}" == "macos-14" ]]; then
+            brew install gitleaks
+          elif [[ "${{ matrix.os }}" == "windows-2022" ]]; then
+            choco install gitleaks -y
+          fi
+
+      # 5. Exécution Gitleaks
       - name: Run Gitleaks
         id: gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        shell: bash
         continue-on-error: true
+        run: |
+          gitleaks detect --source . --verbose
 
-      # 5. Création du rapport basique
+      # 6. Création du rapport basique
       - name: Create Report
         if: always()
         shell: bash
@@ -56,7 +72,7 @@ jobs:
             echo "ALERTE ! Il y a des leaks détectés !" > rapport_${{ matrix.os }}.txt
           fi
 
-      # 6. Télécharger le rapport
+      # 7. Télécharger le rapport
       - name: Upload Report
         uses: actions/upload-artifact@v4
         if: always()
