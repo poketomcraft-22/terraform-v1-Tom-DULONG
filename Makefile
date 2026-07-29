@@ -13,5 +13,5 @@ lint: ## Lance les vérifications linter
 secrets: ## Détecte la présence de secrets avec gitleaks
 	gitleaks detect --source . --verbose
 
-clean: ## Nettoie les fichiers temporaires
+clean: ## Nettoie les fichiers temporaires.
 	rm -rf .terraform *.tfstate *.tfplan
