@@ -1,0 +1,66 @@
+name: 4. Pipeline Code Lint
+
+on:
+  push:
+    branches: [ "main", "TP-1" ]
+  pull_request:
+    branches: [ "main", "TP-1" ]
+
+jobs:
+  lint-check:
+    name: Lint sur ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-2022, macos-14]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # Vérifie si le code Terraform est bien formaté/linté
+      - name: Run Terraform Format Check
+        id: lint
+        shell: bash
+        continue-on-error: true
+        run: |
+          terraform fmt -check -recursive
+
+      - name: Create Lint Report
+        if: always()
+        shell: bash
+        run: |
+          if [ "${{ steps.lint.outcome }}" == "success" ]; then
+            MSG="🎨 LINT PARFAIT ! Ton code est aligné et propre comme un sous neuf beau gosse !"
+            COLOR="#dcfce7"
+          else
+            MSG="🧹 ERREUR DE LINT ! Ton code est mal indenté ou mal formaté, passe un coup de terraform fmt !"
+            COLOR="#fee2e2"
+          fi
+
+          echo "## Résultat Lint (${{ matrix.os }})" >> $GITHUB_STEP_SUMMARY
+          echo "$MSG" >> $GITHUB_STEP_SUMMARY
+
+          cat <<EOF > rapport_lint_${{ matrix.os }}.html
+          <!DOCTYPE html>
+          <html>
+          <body style="font-family: Arial; padding: 20px;">
+              <h2>Rapport Code Linting - ${{ matrix.os }}</h2>
+              <div style="background-color: ${COLOR}; padding: 15px; border-radius: 8px; font-weight: bold;">
+                  ${MSG}
+              </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rapport-lint-${{ matrix.os }}
+          path: rapport_lint_${{ matrix.os }}.html
