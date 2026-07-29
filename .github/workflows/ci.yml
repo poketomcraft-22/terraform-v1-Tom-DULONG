@@ -9,7 +9,7 @@ on:
 
 jobs:
   security-audit:
-    runs-on: ubuntu-latest # GitHub alloue un serveur Ubuntu virtuel gratuit
+    runs-on: ubuntu-22.04 # GitHub alloue un serveur Ubuntu virtuel gratuit
 
     steps:
       # Étape 1 : Récupérer le code source du dépôt sur la machine GitHub
