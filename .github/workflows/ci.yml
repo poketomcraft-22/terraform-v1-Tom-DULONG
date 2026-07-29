@@ -1,9 +1,7 @@
-name: CI Pipeline Multi-OS
+name: CI Pipeline
 
 on:
   push:
-    branches: [ "main", "TP-1" ]
-  pull_request:
     branches: [ "main", "TP-1" ]
 
 jobs:
@@ -17,52 +15,44 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Checkout code
+      - name: Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Terraform
+      - name: Terraform
         uses: hashicorp/setup-terraform@v3
 
       - name: Check Terraform
-        run: |
-          terraform init -backend=false
-          terraform validate
+        run: terraform init -backend=false && terraform validate
 
-      - name: Run Trivy
+      - name: Trivy
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'config'
           scan-ref: '.'
 
-      # Installation de Gitleaks selon l'OS
-      - name: Install Gitleaks
-        shell: bash
-        run: |
-          if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
-            wget https://github.com/gitleaks/gitleaks/releases/download/v8.24.0/gitleaks_8.24.0_linux_x64.tar.gz
-            tar -xzf gitleaks_8.24.0_linux_x64.tar.gz gitleaks
-            sudo mv gitleaks /usr/local/bin/
-          elif [[ "${{ matrix.os }}" == "macos-14" ]]; then
-            brew install gitleaks
-          elif [[ "${{ matrix.os }}" == "windows-2022" ]]; then
-            choco install gitleaks -y
-          fi
-
-      # Run Gitleaks & écriture du résumé individuel sur l'affichage du job
-      - name: Run Gitleaks
+      - name: Gitleaks
         id: gitleaks
-        shell: bash
+        uses: gitleaks/gitleaks-action@v2
         continue-on-error: true
+
+      # Génération du rapport PDF basique sans Python
+      - name: Create PDF Report
+        if: always()
+        shell: bash
         run: |
-          gitleaks detect --source . --verbose
-          EXIT_CODE=$?
-          if [ $EXIT_CODE -eq 0 ]; then
-            echo "## No leaks detected ✅" >> $GITHUB_STEP_SUMMARY
-            echo "GOOD ! Il n'y a aucun leak, tout va bien beau gosse ! 😎" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.gitleaks.outcome }}" == "success" ]; then
+            MSG="GOOD ! Il n'y a aucun leak, tout va bien beau gosse ! 😎"
           else
-            echo "## Leaks detected 🚨" >> $GITHUB_STEP_SUMMARY
-            echo "ALERTE ! Il y a des leaks détectés dans le code !" >> $GITHUB_STEP_SUMMARY
-            exit $EXIT_CODE
+            MSG="ALERTE ! Il y a des leaks détectés dans le code !"
           fi
+          echo -e "%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n\n=== RAPPORT DE SECURITE (${{ matrix.os }}) ===\n$MSG" > rapport_${{ matrix.os }}.pdf
+
+      # Envoi de l'artefact PDF
+      - name: Upload PDF
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rapport-pdf-${{ matrix.os }}
+          path: rapport_${{ matrix.os }}.pdf
