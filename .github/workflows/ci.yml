@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI Pipeline Multi-OS
 
 on:
   push:
@@ -17,13 +17,11 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      # 1. Récupérer le code
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2. Vérification Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
@@ -32,14 +30,13 @@ jobs:
           terraform init -backend=false
           terraform validate
 
-      # 3. Scan Trivy
       - name: Run Trivy
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'config'
           scan-ref: '.'
 
-      # 4. Installation universelle de Gitleaks selon l'OS
+      # Installation de Gitleaks selon l'OS
       - name: Install Gitleaks
         shell: bash
         run: |
@@ -53,29 +50,19 @@ jobs:
             choco install gitleaks -y
           fi
 
-      # 5. Exécution Gitleaks
+      # Run Gitleaks & écriture du résumé individuel sur l'affichage du job
       - name: Run Gitleaks
         id: gitleaks
         shell: bash
         continue-on-error: true
         run: |
           gitleaks detect --source . --verbose
-
-      # 6. Création du rapport basique
-      - name: Create Report
-        if: always()
-        shell: bash
-        run: |
-          if [ "${{ steps.gitleaks.outcome }}" == "success" ]; then
-            echo "GOOD ! Il n'y a aucun leak, tout va bien beau gosse !" > rapport_${{ matrix.os }}.txt
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "## No leaks detected ✅" >> $GITHUB_STEP_SUMMARY
+            echo "GOOD ! Il n'y a aucun leak, tout va bien beau gosse ! 😎" >> $GITHUB_STEP_SUMMARY
           else
-            echo "ALERTE ! Il y a des leaks détectés !" > rapport_${{ matrix.os }}.txt
+            echo "## Leaks detected 🚨" >> $GITHUB_STEP_SUMMARY
+            echo "ALERTE ! Il y a des leaks détectés dans le code !" >> $GITHUB_STEP_SUMMARY
+            exit $EXIT_CODE
           fi
-
-      # 7. Télécharger le rapport
-      - name: Upload Report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: rapport-${{ matrix.os }}
-          path: rapport_${{ matrix.os }}.txt
