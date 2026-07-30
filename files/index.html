@@ -2,134 +2,37 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Portail Centralisé</title>
-    <style>
-        body {
-            background-color: #0f172a;
-            color: #f8fafc;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 40px;
-            text-align: center;
-        }
-        h1 {
-            color: #38bdf8;
-            font-size: 2.5rem;
-            margin-bottom: 5px;
-        }
-        p.subtitle {
-            color: #94a3b8;
-            margin-bottom: 40px;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        .card {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            text-align: left;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            border-radius: 20px;
-            border: 1px solid #38bdf8;
-            color: #38bdf8;
-            margin-bottom: 15px;
-            width: fit-content;
-        }
-        .card h3 {
-            margin: 0 0 10px 0;
-            font-size: 1.3rem;
-        }
-        .card p {
-            color: #94a3b8;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-        }
-        .btn {
-            display: block;
-            text-align: center;
-            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
-            color: #0f172a;
-            padding: 12px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: opacity 0.2s;
-        }
-        .btn:hover {
-            opacity: 0.9;
-        }
-    </style>
+    <title>Portail de Jeux</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <h1>PORTAIL CENTRALISÉ</h1>
-    <p class="subtitle">Centre de contrôle, outils IT et espace détente</p>
+    <div class="portal-container">
+        <h1>PORTAIL DE JEUX</h1>
+        <p class="subtitle">Espace détente - Snake & Tetris</p>
 
-    <div class="grid">
-        <!-- Jeu du Snake -->
-        <div class="card">
-            <div>
-                <span class="badge">Détente</span>
-                <h3>Jeu du Snake</h3>
-                <p>Le jeu classique jouable directement sur le serveur.</p>
+        <div class="grid">
+            <!-- Jeu du Snake -->
+            <div class="card">
+                <div>
+                    <span class="badge">Détente</span>
+                    <h3>Jeu du Snake</h3>
+                    <p>Le jeu classique jouable directement sur le serveur.</p>
+                </div>
+                <a href="snake.html" class="btn">Jouer au Snake 🎮</a>
             </div>
-            <a href="snake.html" class="btn">Jouer au Snake 🎮</a>
-        </div>
 
-        <!-- Jeu du Tetris -->
-        <div class="card">
-            <div>
-                <span class="badge">Détente</span>
-                <h3>Jeu du Tetris</h3>
-                <p>Empile les blocs pour faire un maximum de lignes.</p>
+            <!-- Jeu du Tetris -->
+            <div class="card">
+                <div>
+                    <span class="badge">Détente</span>
+                    <h3>Jeu du Tetris</h3>
+                    <p>Empile les blocs pour faire un maximum de lignes.</p>
+                </div>
+                <a href="tetris.html" class="btn">Jouer au Tetris 🧱</a>
             </div>
-            <a href="tetris.html" class="btn">Jouer au Tetris 🧱</a>
-        </div>
-
-        <!-- Coffre-fort Mots de Passe -->
-        <div class="card">
-            <div>
-                <span class="badge">Sécurité</span>
-                <h3>Coffre-fort Mots de Passe</h3>
-                <p>Gestionnaire sécurisé (Vaultwarden) pour vos credentials.</p>
-            </div>
-            <a href="#" onclick="ouvrirService(8080)" class="btn">Accéder 🔐</a>
-        </div>
-
-        <!-- Bureau Kali Linux -->
-        <div class="card">
-            <div>
-                <span class="badge">Professionnel</span>
-                <h3>Bureau Kali Linux</h3>
-                <p>Environnement d'audit de sécurité (Login : kali / mdp : kali).</p>
-            </div>
-            <a href="#" onclick="ouvrirService(6901)" class="btn">Lancer Kali 💻</a>
         </div>
     </div>
-
-    <script>
-        function ouvrirService(port) {
-            // Récupère l'IP actuelle du serveur et ajoute le bon port dynamiquement
-            const ipActuelle = window.location.hostname;
-            window.open(`http://${ipActuelle}:${port}`, '_blank');
-        }
-    </script>
 
 </body>
 </html>

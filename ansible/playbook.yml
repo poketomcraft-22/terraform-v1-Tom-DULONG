@@ -1,4 +1,4 @@
-- name: Nginx and Services Deployment
+- name: Nginx and Games Deployment
   hosts: webservers
   become: yes
   tasks:
@@ -15,39 +15,10 @@
         state: started
         enabled: yes
 
-    - name: Copier tous les fichiers web (Portail + Jeux) dans Nginx
+    - name: Copier tous les fichiers web (Portail + Jeux Snake/Tetris) dans Nginx
       ansible.builtin.copy:
         src: ../files/
         dest: /var/www/html/
         owner: www-data
         group: www-data
         mode: '0644'
-
-    - name: Installer Docker pour les services annexes
-      ansible.builtin.apt:
-        name: docker.io
-        state: present
-
-    - name: Démarrer et activer Docker
-      ansible.builtin.service:
-        name: docker
-        state: started
-        enabled: yes
-
-    - name: Lancer Vaultwarden (Gestionnaire de mots de passe sur port 8080)
-      ansible.builtin.docker_container:
-        name: vaultwarden
-        image: vaultwarden/server:1.32.0
-        ports:
-          - "8080:80"
-        restart_policy: always
-
-    - name: Lancer Kali Linux Web (Kasm sur port 6901)
-      ansible.builtin.docker_container:
-        name: kali-web
-        image: kasmweb/core-kali-rolling:1.15.0
-        ports:
-          - "6901:6901"
-        env:
-          VNC_PW: "kali"
-        restart_policy: always
