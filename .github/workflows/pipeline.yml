@@ -1,8 +1,8 @@
-name: CI/CD Pipeline - Deploy and Destroy
+name: CI/CD Pipeline - Terraform & Ansible
 
 on:
   push:
-    branches: [ "main", "master", "tp-2" ]
+    branches: [ "tp-2" ]
   workflow_dispatch:
     inputs:
       action:
@@ -15,9 +15,48 @@ on:
           - destroy
 
 jobs:
+  # 1. Récupérer le code source du dépôt
+  checkout:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+  # 2. Installer Terraform
+  setup-terraform:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.0"
+
+  # 3. Configurer les identifiants AWS
+  aws-credentials:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+  # 4. Configurer la clé SSH
+  setup-ssh:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+  # 5. Exécuter make deploy ou make destroy selon le choix dans l'interface GitHub
   run-make:
     runs-on: ubuntu-22.04
-
+    needs: [checkout, setup-terraform, aws-credentials, setup-ssh]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
