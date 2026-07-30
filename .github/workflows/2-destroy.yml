@@ -1,16 +1,7 @@
-name: Destroy - Deploy - +
+name: 2 - Destroy
 
 on:
   workflow_dispatch:
-    inputs:
-      action:
-        description: 'Choose action to perform'
-        required: true
-        default: 'deploy'
-        type: choice
-        options:
-          - deploy
-          - destroy
 
 jobs:
   checkout:
@@ -47,7 +38,7 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-  run-make:
+  run-make-destroy:
     runs-on: ubuntu-22.04
     needs: [checkout, setup-terraform, aws-credentials, setup-ssh]
     steps:
@@ -74,10 +65,5 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keygen -y -f ~/.ssh/id_ed25519 > ~/.ssh/id_ed25519.pub
 
-      - name: Run Make Action
-        run: |
-          if [ "${{ github.event.inputs.action }}" = "destroy" ]; then
-            make destroy
-          else
-            make deploy
-          fi
+      - name: Run Make Destroy
+        run: make destroy
