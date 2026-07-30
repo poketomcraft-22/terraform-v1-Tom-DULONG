@@ -103,10 +103,10 @@ resource "aws_key_pair" "deployer" {
   public_key = file("~/.ssh/id_ed25519.pub")
 }
 
-# Groupe de sécurité pour autoriser SSH (22) et HTTP (80)
+# Groupe de sécurité pour autoriser SSH (22), HTTP (80), Vaultwarden (8080) et Kasm/Kali (6901)
 resource "aws_security_group" "web_sg" {
   name        = "${var.project_name}-web-sg"
-  description = "Autorise le trafic SSH et HTTP"
+  description = "Autorise le trafic SSH, HTTP et services web"
   vpc_id      = data.aws_vpc.default.id
 
   ingress {
@@ -119,6 +119,20 @@ resource "aws_security_group" "web_sg" {
   ingress {
     from_port   = 80
     to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 6901
+    to_port     = 6901
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
