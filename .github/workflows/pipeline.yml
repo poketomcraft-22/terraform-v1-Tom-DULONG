@@ -2,7 +2,7 @@ name: CI/CD Pipeline - Terraform & Ansible
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "main", "master", "tp-2" ]
   workflow_dispatch:
     inputs:
       action:
@@ -16,7 +16,7 @@ on:
 
 jobs:
   run-make:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       # 1. Récupérer le code source du dépôt
