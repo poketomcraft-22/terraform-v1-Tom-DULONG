@@ -1,0 +1,18 @@
+# Normalisation automatique des fins de ligne
+* text=auto eol=lf
+
+# Fichiers Terraform et HCL
+*.tf text eol=lf
+*.tfvars text eol=lf
+
+# Fichiers YAML et Ansible
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Fichiers Shell et Makefile
+*.sh text eol=lf
+Makefile text eol=lf
+
+# Fichiers binaires et images
+*.png binary
+*.jpg binary

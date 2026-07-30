@@ -1,148 +1,70 @@
-# Procédure d'utilisation et de déploiement - TP-2
+# TP-2 : Infrastructure & Déploiement Cloud
 
-Ce document détaille la procédure complète pour initialiser, tester, déployer et détruire l'infrastructure AWS et le conteneur Nginx sécurisé dans le cadre du **TP-2**.
+Ce dépôt contient la configuration Terraform et Ansible pour le TP-2.
 
----
+## Prérequis
 
-## 📋 Prérequis
+- [Terraform](https://www.terraform.io/) (>= 1.5.0)
+- [Ansible](https://www.ansible.com/)
+- [Make](https://www.gnu.org/software/make/)
+- [pre-commit](https://pre-commit.com/) (optionnel mais recommandé)
 
-Avant de commencer, assurez-vous de disposer des outils suivants installés et fonctionnels dans votre environnement Linux / WSL :
+## Guide d'utilisation rapide avec Make
 
-- **Git** (avec clé SSH configurée pour s'authentifier sur GitHub)
-- **Docker** (pour la construction des images de conteneurs)
-- **Terraform** (>= 1.5.0)
-- **AWS CLI** (configuré avec vos identifiants ou le rôle de session du laboratoire)
+Toutes les étapes d'administration du projet sont centralisées via le `Makefile`.
 
----
+### 1. Initialiser l'environnement de développement
 
-## 🛠️ Étape 1 : Préparation du code et Hardening Nginx Local
-
-Cette étape consiste à builder et tester le conteneur Nginx durci (*hardening*) sur votre machine locale.
-
-### 1.1. Se placer dans le dossier de l'application
+Pour installer les hooks Git de validation automatique :
 ```bash
-cd /mnt/c/Users/TOM/Desktop/TP-2/app
+pre-commit install
 ```
 
-### 1.2. Builder l'image Docker locale
+### 2. Valider et formater le code
+
+Pour le formatage récursif de l'IaC et la vérification de la syntaxe :
 ```bash
-docker build -t tp2-nginx-local .
+make validate
 ```
 
-### 1.3. Lancer et tester le conteneur localement
-```bash
-# Lancer le conteneur sur le port 8080
-docker run -d -p 8080:80 --name test-nginx tp2-nginx-local
+### 3. Prévisualiser les changements Terraform
 
-# Vérifier la présence des en-têtes de sécurité (Security Headers)
-curl -I http://localhost:8080
+```bash
+make plan
 ```
 
-*Vérifiez que la sortie contient bien les en-têtes de sécurité OWASP (ex: `X-Frame-Options`, `X-Content-Type-Options`, `Content-Security-Policy`).*
+### 4. Déployer l'infrastructure
 
-### 1.4. Nettoyer le conteneur de test local
 ```bash
-docker stop test-nginx && docker rm test-nginx
+make apply
 ```
 
----
-
-## ☁️ Étape 2 : Déploiement de l'Infrastructure sur AWS (Terraform)
-
-### 2.1. Initialisation et validation du code Terraform
-Positionnez-vous dans le dossier `terraform` et initialisez les providers :
+### 5. Exécuter la configuration Ansible
 
 ```bash
-cd /mnt/c/Users/TOM/Desktop/TP-2/terraform
-terraform init
+make ansible-run
 ```
 
-Validez la syntaxe des fichiers de configuration `.tf` :
-```bash
-terraform validate
-```
-
-### 2.2. Planification des ressources (`terraform plan`)
-Générez et sauvegardez le plan d'exécution afin de vérifier l'ensemble des ressources qui seront créées sur AWS :
+### 6. Nettoyer / Supprimer les ressources
 
 ```bash
-terraform plan -out=dev.tfplan
-```
-
-### 2.3. Déploiement effectif sur AWS (`terraform apply`)
-Appliquez le plan sauvegardé pour déployer le cluster ECS Fargate, le registre ECR et le Security Group :
-
-```bash
-terraform apply dev.tfplan
+make destroy
 ```
 
 ---
 
-## 🐳 Étape 3 : Publication de l'image Docker sur AWS ECR
+## Commandes Make disponibles
 
-Une fois le registre ECR créé par Terraform, vous devez pousser l'image Docker vers AWS ECR.
+| Commande | Description |
+| :--- | :--- |
+| `make help` | Affiche la liste des commandes disponibles |
+| `make fmt` | Formate récursivement le code Terraform (`terraform fmt -recursive`) |
+| `make validate` | Vérifie la validité des fichiers Terraform |
+| `make plan` | Génère le plan de déploiement |
+| `make apply` | Déploie l'infrastructure sur AWS/Cloud |
+| `make ansible-run` | Lance la configuration Ansible |
+| `make destroy` | Supprime l'infrastructure créée |
 
-### 3.1. Authentification Docker auprès d'AWS ECR
-```bash
-# Remplacez <REGION> et <ACCOUNT_ID> par vos valeurs AWS
-aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.eu-west-3.amazonaws.com
-```
-
-### 3.2. Tag et Push de l'image
-```bash
-docker tag tp2-nginx-local:latest <ACCOUNT_ID>.dkr.ecr.eu-west-3.amazonaws.com/tp2-nginx-repo:latest
-docker push <ACCOUNT_ID>.dkr.ecr.eu-west-3.amazonaws.com/tp2-nginx-repo:latest
-```
-
----
-
-## 🔍 Étape 4 : Inspection et Gestion de l'État (Partie D)
-
-### 4.1. Détection de dérive (*Drift Detection*)
-Pour vérifier si des modifications manuelles ont été apportées sur AWS en dehors de Terraform :
-
-```bash
-terraform plan
-```
-
-### 4.2. Inspection du fichier d'état (`tfstate`)
-Affichez les ressources répertoriées dans le dictionnaire d'état Terraform :
-
-```bash
-terraform state list
-terraform show -json | jq '.values.root_module.resources[].type'
-```
-
----
-
-## 🚀 Étape 5 : Versioning et Validation CI/CD (GitHub Actions)
-
-### 5.1. Vérification de la signature des commits (Verified Badge)
-S'assurer que votre signature SSH est correctement appliquée lors du commit :
-
-```bash
-cd /mnt/c/Users/TOM/Desktop/TP-2
-git add .
-git commit -S -m "feat: deploiement et hardening valides"
-```
-
-### 5.2. Push de la branche vers GitHub
-Pushez vos modifications sur la branche `tp-2` pour déclencher le pipeline CI/CD :
-
-```bash
-git push -u origin tp-2
-```
-
----
-
-## 🧹 Étape 6 : Destruction des ressources AWS (Nettoyage)
-
-Afin d'éviter toute surconsommation de crédits AWS après la validation du TP, détruisez l'intégralité des ressources provisionnées :
-
-```bash
-cd /mnt/c/Users/TOM/Desktop/TP-2/terraform
-terraform destroy -auto-approve
-```
 -----------------------------------------------------------------------------------------------
 
 ## Part B — Déploiement AWS
