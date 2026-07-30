@@ -53,7 +53,7 @@
     - name: Lancer Kali Linux Web (Kasm sur port 6901)
       ansible.builtin.docker_container:
         name: kali-web
-        image: kasmweb/kali-rolling:1.15.0
+        image: kasmweb/kali-rolling:latest
         ports:
           - "6901:6901"
         env:
