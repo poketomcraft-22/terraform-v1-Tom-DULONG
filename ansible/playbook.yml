@@ -1,26 +1,62 @@
 ---
-- name: Nginx and Web Site Deployment
+- name: Nginx and Services Deployment
   hosts: webservers
-  become: yes  # Nécessaire pour installe des paquets et modifier /var/www/html
+  become: yes
   tasks:
-    - name: Installation Engine-X
+    - name: Installation Nginx
       ansible.builtin.apt:
         name: nginx
         state: present
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: System Check
+    - name: Demarrer et activer Nginx
       ansible.builtin.service:
         name: nginx
         state: started
         enabled: yes
 
-    - name: Web Site in Nginx
+    - name: Copier tous les fichiers web (Portail + Jeux) dans Nginx
       ansible.builtin.copy:
         src: ../files/
         dest: /var/www/html/
         owner: www-data
         group: www-data
         mode: '0644'
-        
+
+    - name: Installer Docker pour les services annexes
+      ansible.builtin.apt:
+        name: docker.io
+        state: present
+
+    - name: Démarrer et activer Docker
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Lancer Vaultwarden (Gestionnaire de mots de passe sur port 8080)
+      ansible.builtin.docker_container:
+        name: vaultwarden
+        image: vaultwarden/server:latest
+        ports:
+          - "8080:80"
+        restart_policy: always
+
+    - name: Lancer GLPI (ITSM sur port 8090)
+      ansible.builtin.docker_container:
+        name: glpi
+        image: glpiproject/glpi:latest
+        ports:
+          - "8090:80"
+        restart_policy: always
+
+    - name: Lancer Kali Linux Web (Kasm sur port 6901)
+      ansible.builtin.docker_container:
+        name: kali-web
+        image: kasmweb/kali-rolling:1.15.0
+        ports:
+          - "6901:6901"
+        env:
+          VNC_PW: "kali"
+        restart_policy: always

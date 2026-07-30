@@ -109,7 +109,7 @@ function drawFood() {
     ctx.shadowColor = '#ff0055';
     ctx.shadowBlur = 10;
     ctx.fillRect(food.x, food.y, gridSize, gridSize);
-    ctx.shadowBlur = 0; // reset blur
+    ctx.shadowBlur = 0;
 }
 
 function changeDirection(event) {

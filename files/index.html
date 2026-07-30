@@ -3,33 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcade Zone - Snake Nginx Edition</title>
+    <title>Portail de Services & Arcade</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Écran d'accueil -->
-        <div id="welcome-screen" class="card">
+    <div class="portal-container">
+        <header>
             <div class="badge">Nginx Powered 🚀</div>
-            <h1>SNAKE ARCADE</h1>
-            <p>Bienvenue sur le serveur du Snake</p>
-            <button id="start-btn" class="btn">Commencer le jeu 🎮</button>
-        </div>
+            <h1>PORTAIL CENTRALISÉ</h1>
+            <p>Centre de contrôle, outils IT et espace détente</p>
+        </header>
 
-        <!-- Zone du Jeu (masquée au début) -->
-        <div id="game-screen" class="card hidden">
-            <div class="game-header">
-                <div class="score-board">Score: <span id="score">0</span></div>
-                <div class="score-board">Best: <span id="high-score">0</span></div>
+        <div class="grid">
+            <!-- Jeu : Snake -->
+            <div class="card">
+                <span class="badge-card">Détente</span>
+                <h3>Jeu du Snake</h3>
+                <p>Le jeu classique jouable directement sur le serveur.</p>
+                <a href="snake.html" class="btn">Jouer au Snake 🎮</a>
             </div>
 
-            <canvas id="snakeCanvas" width="400" height="400"></canvas>
+            <!-- Jeu : Tetris -->
+            <div class="card">
+                <span class="badge-card">Détente</span>
+                <h3>Jeu du Tetris</h3>
+                <p>Empile les blocs pour faire un maximum de lignes.</p>
+                <a href="tetris.html" class="btn">Jouer au Tetris 🧱</a>
+            </div>
 
-            <p class="controls-hint">Utilise les <strong>flèches du clavier</strong> pour te déplacer</p>
-            <button id="restart-btn" class="btn hidden">Recommencer 🔄</button>
+            <!-- GLPI -->
+            <div class="card">
+                <span class="badge-card">Administration</span>
+                <h3>GLPI (ITSM)</h3>
+                <p>Gestion de parc informatique et support technique.</p>
+                <a href="http://<IP_DE_TON_EC2>:8090" target="_blank" class="btn">Ouvrir GLPI 🛠️</a>
+            </div>
+
+            <!-- Gestionnaire de mots de passe -->
+            <div class="card">
+                <span class="badge-card">Sécurité</span>
+                <h3>Coffre-fort Mots de Passe</h3>
+                <p>Gestionnaire sécurisé (Vaultwarden) pour vos credentials.</p>
+                <a href="http://<IP_DE_TON_EC2>:8080" target="_blank" class="btn">Accéder 🔐</a>
+            </div>
+
+            <!-- Environnement de Hacking / Travail -->
+            <div class="card">
+                <span class="badge-card">Professionnel</span>
+                <h3>Bureau Kali Linux</h3>
+                <p>Environnement d'audit de sécurité (Login : kali / mdp : kali).</p>
+                <a href="https://<IP_DE_TON_EC2>:6901" target="_blank" class="btn">Lancer Kali 💻</a>
+            </div>
         </div>
     </div>
-
-    <script src="script.js"></script>
 </body>
 </html>
