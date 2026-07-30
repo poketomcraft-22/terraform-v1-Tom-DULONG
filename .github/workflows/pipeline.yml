@@ -1,4 +1,4 @@
-name: CI/CD Pipeline - Terraform & Ansible
+name: CI/CD Pipeline - Deploy and Destroy
 
 on:
   push:
