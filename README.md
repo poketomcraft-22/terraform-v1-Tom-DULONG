@@ -1,3 +1,150 @@
+# Procédure d'utilisation et de déploiement - TP-2
+
+Ce document détaille la procédure complète pour initialiser, tester, déployer et détruire l'infrastructure AWS et le conteneur Nginx sécurisé dans le cadre du **TP-2**.
+
+---
+
+## 📋 Prérequis
+
+Avant de commencer, assurez-vous de disposer des outils suivants installés et fonctionnels dans votre environnement Linux / WSL :
+
+- **Git** (avec clé SSH configurée pour s'authentifier sur GitHub)
+- **Docker** (pour la construction des images de conteneurs)
+- **Terraform** (>= 1.5.0)
+- **AWS CLI** (configuré avec vos identifiants ou le rôle de session du laboratoire)
+
+---
+
+## 🛠️ Étape 1 : Préparation du code et Hardening Nginx Local
+
+Cette étape consiste à builder et tester le conteneur Nginx durci (*hardening*) sur votre machine locale.
+
+### 1.1. Se placer dans le dossier de l'application
+```bash
+cd /mnt/c/Users/TOM/Desktop/TP-2/app
+```
+
+### 1.2. Builder l'image Docker locale
+```bash
+docker build -t tp2-nginx-local .
+```
+
+### 1.3. Lancer et tester le conteneur localement
+```bash
+# Lancer le conteneur sur le port 8080
+docker run -d -p 8080:80 --name test-nginx tp2-nginx-local
+
+# Vérifier la présence des en-têtes de sécurité (Security Headers)
+curl -I http://localhost:8080
+```
+
+*Vérifiez que la sortie contient bien les en-têtes de sécurité OWASP (ex: `X-Frame-Options`, `X-Content-Type-Options`, `Content-Security-Policy`).*
+
+### 1.4. Nettoyer le conteneur de test local
+```bash
+docker stop test-nginx && docker rm test-nginx
+```
+
+---
+
+## ☁️ Étape 2 : Déploiement de l'Infrastructure sur AWS (Terraform)
+
+### 2.1. Initialisation et validation du code Terraform
+Positionnez-vous dans le dossier `terraform` et initialisez les providers :
+
+```bash
+cd /mnt/c/Users/TOM/Desktop/TP-2/terraform
+terraform init
+```
+
+Validez la syntaxe des fichiers de configuration `.tf` :
+```bash
+terraform validate
+```
+
+### 2.2. Planification des ressources (`terraform plan`)
+Générez et sauvegardez le plan d'exécution afin de vérifier l'ensemble des ressources qui seront créées sur AWS :
+
+```bash
+terraform plan -out=dev.tfplan
+```
+
+### 2.3. Déploiement effectif sur AWS (`terraform apply`)
+Appliquez le plan sauvegardé pour déployer le cluster ECS Fargate, le registre ECR et le Security Group :
+
+```bash
+terraform apply dev.tfplan
+```
+
+---
+
+## 🐳 Étape 3 : Publication de l'image Docker sur AWS ECR
+
+Une fois le registre ECR créé par Terraform, vous devez pousser l'image Docker vers AWS ECR.
+
+### 3.1. Authentification Docker auprès d'AWS ECR
+```bash
+# Remplacez <REGION> et <ACCOUNT_ID> par vos valeurs AWS
+aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.eu-west-3.amazonaws.com
+```
+
+### 3.2. Tag et Push de l'image
+```bash
+docker tag tp2-nginx-local:latest <ACCOUNT_ID>.dkr.ecr.eu-west-3.amazonaws.com/tp2-nginx-repo:latest
+docker push <ACCOUNT_ID>.dkr.ecr.eu-west-3.amazonaws.com/tp2-nginx-repo:latest
+```
+
+---
+
+## 🔍 Étape 4 : Inspection et Gestion de l'État (Partie D)
+
+### 4.1. Détection de dérive (*Drift Detection*)
+Pour vérifier si des modifications manuelles ont été apportées sur AWS en dehors de Terraform :
+
+```bash
+terraform plan
+```
+
+### 4.2. Inspection du fichier d'état (`tfstate`)
+Affichez les ressources répertoriées dans le dictionnaire d'état Terraform :
+
+```bash
+terraform state list
+terraform show -json | jq '.values.root_module.resources[].type'
+```
+
+---
+
+## 🚀 Étape 5 : Versioning et Validation CI/CD (GitHub Actions)
+
+### 5.1. Vérification de la signature des commits (Verified Badge)
+S'assurer que votre signature SSH est correctement appliquée lors du commit :
+
+```bash
+cd /mnt/c/Users/TOM/Desktop/TP-2
+git add .
+git commit -S -m "feat: deploiement et hardening valides"
+```
+
+### 5.2. Push de la branche vers GitHub
+Pushez vos modifications sur la branche `tp-2` pour déclencher le pipeline CI/CD :
+
+```bash
+git push -u origin tp-2
+```
+
+---
+
+## 🧹 Étape 6 : Destruction des ressources AWS (Nettoyage)
+
+Afin d'éviter toute surconsommation de crédits AWS après la validation du TP, détruisez l'intégralité des ressources provisionnées :
+
+```bash
+cd /mnt/c/Users/TOM/Desktop/TP-2/terraform
+terraform destroy -auto-approve
+```
+-----------------------------------------------------------------------------------------------
+
 ## Part B — Déploiement AWS
 
 ### Question 3 : Analyse du plan d'exécution (`terraform plan -out=dev.tfplan`)
