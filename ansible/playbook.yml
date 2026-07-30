@@ -1,4 +1,3 @@
----
 - name: Nginx and Services Deployment
   hosts: webservers
   become: yes
@@ -46,7 +45,7 @@
     - name: Lancer GLPI (ITSM sur port 8090)
       ansible.builtin.docker_container:
         name: glpi
-        image: cablesur/glpi:10.0.16
+        image: glpi/glpi:10.0.10
         ports:
           - "8090:80"
         restart_policy: always
