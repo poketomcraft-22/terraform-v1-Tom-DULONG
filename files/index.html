@@ -2,57 +2,29 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Tetris Arcade</title>
+    <title>Portail Arcade</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
     <div class="portal-container">
-        <h1>TETRIS ARCADE</h1>
-        <p class="subtitle">Empile les blocs, fais des lignes et bats ton score !</p>
+        <h1>PORTAIL ARCADE</h1>
+        <p class="subtitle">Choisis ton jeu et commence à jouer !</p>
 
-        <div class="tetris-layout">
-            <!-- Panneau gauche : Bloc en réserve (Hold) et contrôles -->
-            <div class="side-panel">
-                <div class="score-board" style="text-align: center;">
-                    <div style="font-size: 0.85rem; color: #8b949e; margin-bottom: 5px;">RÉSERVE [C]</div>
-                    <canvas id="holdCanvas" width="80" height="80" class="mini-board"></canvas>
+        <div class="grid">
+            <!-- Carte Tetris -->
+            <div class="card">
+                <div>
+                    <span class="badge">ARCADE</span>
+                    <h3>Tetris Arcade</h3>
+                    <p>Empile les blocs, fais des lignes et bats ton score avec la réserve et le bloc suivant !</p>
                 </div>
-                <div class="score-board">
-                    <div style="font-size: 0.8rem; color: #8b949e;">CONTRÔLES</div>
-                    <div style="font-size: 0.75rem; margin-top: 5px; line-height: 1.4;">
-                        <b>← / →</b> : Déplacer<br>
-                        <b>↓</b> : Descendre vite<br>
-                        <b>Q / D</b> : Tourner<br>
-                        <b>C</b> : Réserver
-                    </div>
-                </div>
+                <a href="tetris.html" class="btn">Jouer à Tetris</a>
             </div>
 
-            <!-- Plateau principal du jeu -->
-            <div class="card-game">
-                <div class="game-header">
-                    <span>SCORE : <span id="score">0</span></span>
-                    <span>LIGNES : <span id="lines">0</span></span>
-                </div>
-                <canvas id="tetris" width="240" height="400"></canvas>
-            </div>
-
-            <!-- Panneau droit : Prochain bloc -->
-            <div class="side-panel">
-                <div class="score-board" style="text-align: center;">
-                    <div style="font-size: 0.85rem; color: #8b949e; margin-bottom: 5px;">SUIVANT</div>
-                    <canvas id="nextCanvas" width="80" height="80" class="mini-board"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div style="margin-top: 30px;">
-            <a href="index.html" class="btn">← Retour au portail</a>
+            <!-- Tu pourras ajouter d'autres jeux ici plus tard -->
         </div>
     </div>
 
-    <!-- Script du jeu intégré ou lié (voir section 3) -->
-    <script src="tetris.js"></script>
 </body>
 </html>
