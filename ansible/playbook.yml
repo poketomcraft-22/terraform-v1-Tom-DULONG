@@ -45,7 +45,7 @@
     - name: Lancer GLPI (ITSM sur port 8090)
       ansible.builtin.docker_container:
         name: glpi
-        image: glpi/glpi:10.0.10
+        image: glpi/glpi:10.0.7
         ports:
           - "8090:80"
         restart_policy: always
