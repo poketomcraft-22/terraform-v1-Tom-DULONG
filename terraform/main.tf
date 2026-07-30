@@ -18,7 +18,7 @@ resource "aws_ecs_cluster" "main" {
   name = "${var.project_name}-cluster"
 }
 
-# 3. Network / VPC par défaut
+# 3. Réseau / VPC par défaut
 data "aws_vpc" "default" {
   default = true
 }
@@ -30,7 +30,7 @@ data "aws_subnets" "default" {
   }
 }
 
-# Security Group
+# Groupe de sécurité pour ECS
 resource "aws_security_group" "ecs_sg" {
   name        = "${var.project_name}-sg"
   description = "Autoriser le trafic HTTP entrant"
@@ -104,7 +104,7 @@ resource "aws_key_pair" "deployer" {
   public_key = file("~/.ssh/id_ed25519.pub")
 }
 
-# Security Group pour autoriser SSH (22) et HTTP (80)
+# Groupe de sécurité pour autoriser SSH (22) et HTTP (80)
 resource "aws_security_group" "web_sg" {
   name        = "${var.project_name}-web-sg"
   description = "Autorise le trafic SSH et HTTP"
@@ -132,7 +132,7 @@ resource "aws_security_group" "web_sg" {
   }
 }
 
-# Image Ubuntu 22.04 LTS
+# Image Ubuntu 22.04 LTS AMI
 data "aws_ami" "ubuntu" {
   most_recent = true
   owners      = ["099720109477"] # Canonical

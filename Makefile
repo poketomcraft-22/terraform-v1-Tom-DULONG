@@ -32,7 +32,8 @@ destroy: init ## Détruit les ressources créées par Terraform
 clean: ## Nettoie les fichiers temporaires
 	rm -rf terraform/.terraform terraform/.terraform.lock.hcl
 
-deploy: apply ## Déploie l'infra AWS ET configure le serveur web
-	@echo "Attente du démarrage du service SSH sur l'instance AWS..."
-	sleep 25
-	ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
+deploy: apply
+	@echo "Waiting for SSH to be ready on the EC2 instance..."
+	sleep 15
+	@$(MAKE) ansible-run
+	@echo "Deployment successfully completed!"

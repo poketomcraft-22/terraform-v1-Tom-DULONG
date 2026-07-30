@@ -1,25 +1,26 @@
 ---
-- name: Deployment de Nginx et du site web
+- name: Nginx and Web Site Deployment
   hosts: webservers
   become: yes  # Nécessaire pour installe des paquets et modifier /var/www/html
   tasks:
-    - name: Installation de Nginx
+    - name: Installation Engine-X
       ansible.builtin.apt:
         name: nginx
         state: present
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: Démarrage et activation de Nginx
+    - name: System Check
       ansible.builtin.service:
         name: nginx
         state: started
         enabled: yes
 
-    - name: Copie du site web (HTML, CSS, JS) dans Nginx
+    - name: Web Site in Nginx
       ansible.builtin.copy:
         src: ../files/
         dest: /var/www/html/
         owner: www-data
         group: www-data
         mode: '0644'
+        

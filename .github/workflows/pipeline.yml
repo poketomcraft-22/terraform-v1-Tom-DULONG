@@ -1,21 +1,55 @@
-name: CI Pipeline TP2
+name: CI/CD Pipeline - Terraform & Ansible
 
 on:
   push:
-    branches: [ "tp-2", "main", "master" ]
-  pull_request:
-    branches: [ "tp-2", "main", "master" ]
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Choose action to perform'
+        required: true
+        default: 'deploy'
+        type: choice
+        options:
+          - deploy
+          - destroy
 
 jobs:
-  build-and-test:
+  run-make:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout du code
+      # 1. Récupérer le code source du dépôt
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Validation du code Markdown et Shell
+      # 2. Installer Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.0"
+
+      # 3. Configurer les identifiants AWS
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      # 4. Configurer la clé SSH
+      - name: Setup SSH Key
         run: |
-          echo "Vérification des fichiers du dépôt..."
-          ls -la
-          echo "Pipeline exécuté avec succès !"
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+      # 5. Exécuter make deploy ou make destroy selon le choix dans l'interface GitHub
+      - name: Run Make Action
+        run: |
+          if [ "${{ github.event.inputs.action }}" = "destroy" ]; then
+            make destroy
+          else
+            make deploy
+          fi

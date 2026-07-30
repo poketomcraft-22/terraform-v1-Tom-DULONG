@@ -1,26 +1,24 @@
 variable "aws_region" {
-  type    = string
-  default = "us-east-1"
+  type        = string
+  description = "AWS region where resources will be deployed"
 }
 
 variable "project_name" {
   type        = string
-  default     = "tp2-docker-ecs"
-  description = "Nom du projet et des ressources associées"
+  description = "Name of the project and associated resources"
 
   validation {
     condition     = can(regex("^[a-z0-9-]+$", var.project_name))
-    error_message = "Le nom du projet ne doit contenir que des lettres minuscules, chiffres et tirets."
+    error_message = "The project name must contain only lowercase letters, numbers, and hyphens."
   }
 }
 
 variable "environment" {
   type        = string
-  default     = "dev"
-  description = "Nom de l'environnement (dev, test, prod)"
+  description = "Deployment environment (dev, test, prod)"
 
   validation {
     condition     = can(regex("^(dev|test|prod)$", var.environment))
-    error_message = "L'environnement doit être 'dev', 'test' ou 'prod'."
+    error_message = "The environment must be 'dev', 'test', or 'prod'."
   }
 }
