@@ -1,8 +1,6 @@
-name: Pipeline - Deploy - Destroy
+name: CI/CD Pipeline - Terraform & Ansible
 
 on:
-  push:
-    branches: [ "tp-2", "main" ]
   workflow_dispatch:
     inputs:
       action:
