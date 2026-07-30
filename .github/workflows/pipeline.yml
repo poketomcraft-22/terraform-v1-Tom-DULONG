@@ -2,7 +2,7 @@ name: CI/CD Pipeline - Terraform & Ansible
 
 on:
   push:
-    branches: [ "tp-2" ]
+    branches: [ "tp-2", "main" ]
   workflow_dispatch:
     inputs:
       action:
@@ -59,7 +59,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.5.0"
+          terraform_version: "1.6.6"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
