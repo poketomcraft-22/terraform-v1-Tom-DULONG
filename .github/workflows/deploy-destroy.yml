@@ -13,7 +13,7 @@ on:
           - destroy
 
 jobs:
-  setup-environment:
+  deploy-or-destroy:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
@@ -39,89 +39,48 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keygen -y -f ~/.ssh/id_ed25519 > ~/.ssh/id_ed25519.pub
 
-  deploy:
-    needs: setup-environment
-    if: ${{ github.event.inputs.action == 'deploy' }}
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+      # 1. Si on fait un DESTROY, on essaie de récupérer le dernier fichier d'état sauvegardé
+      - name: Download Terraform State (if destroy)
+        if: ${{ github.event.inputs.action == 'destroy' }}
+        uses: dawidd6/action-download-artifact@v3
         with:
-          terraform_version: "1.6.6"
+          name: terraform-state
+          path: terraform/
+          if_no_artifact_found: ignore
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      # 2. Exécution du Make (deploy ou destroy)
+      - name: Run Make Action
+        run: make ${{ inputs.action }}
+
+      # 3. Si on a fait un DEPLOY, on sauvegarde le fichier .tfstate généré dans les artéfacts GitHub
+      - name: Upload Terraform State (if deploy)
+        if: ${{ github.event.inputs.action == 'deploy' }}
+        uses: actions/upload-artifact@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: us-east-1
+          name: terraform-state
+          path: terraform/terraform.tfstate
+          retention-days: 1 # On le garde juste 1 jour puisque c'est du jetable
 
-      - name: Setup SSH Key
+      # 4. Affichage des messages de succès personnalisés
+      - name: Display Success / Destroy Message
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keygen -y -f ~/.ssh/id_ed25519 > ~/.ssh/id_ed25519.pub
+          if [ "${{ github.event.inputs.action }}" == "deploy" ]; then
+            cd terraform
+            PUBLIC_IP=$(terraform output -raw ec2_public_ip)
+            echo "========================================================"
+            echo "✅ Création réussie !"
+            echo "🌐 Adresse IP publique : $PUBLIC_IP"
+            echo "🔗 Lien d'accès du site : http://$PUBLIC_IP"
+            echo "========================================================"
 
-      - name: Run Make Deploy
-        run: make deploy
+            echo "### ✅ Création réussie !" >> $GITHUB_STEP_SUMMARY
+            echo "- **Adresse IP publique :** \`$PUBLIC_IP\`" >> $GITHUB_STEP_SUMMARY
+            echo "- **Lien d'accès du site :** [http://$PUBLIC_IP](http://$PUBLIC_IP)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "========================================================"
+            echo "🗑️ Tout a bien été supprimé correctement !"
+            echo "========================================================"
 
-      - name: Display Success and Website Link
-        run: |
-          cd terraform
-          PUBLIC_IP=$(terraform output -raw ec2_public_ip)
-          echo "========================================================"
-          echo "✅ Création réussie !"
-          echo "🌐 Adresse IP publique : $PUBLIC_IP"
-          echo "🔗 Lien d'accès du site : http://$PUBLIC_IP"
-          echo "========================================================"
-
-          # Ajout d'un résumé visuel dans l'interface GitHub Actions
-          echo "### ✅ Création réussie !" >> $GITHUB_STEP_SUMMARY
-          echo "- **Adresse IP publique :** \`$PUBLIC_IP\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Lien d'accès du site :** [http://$PUBLIC_IP](http://$PUBLIC_IP)" >> $GITHUB_STEP_SUMMARY
-
-  destroy:
-    needs: setup-environment
-    if: ${{ github.event.inputs.action == 'destroy' }}
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.6.6"
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: us-east-1
-
-      - name: Setup SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keygen -y -f ~/.ssh/id_ed25519 > ~/.ssh/id_ed25519.pub
-
-      - name: Run Make Destroy
-        run: make destroy
-
-      - name: Display Destroy Success
-        run: |
-          echo "========================================================"
-          echo "🗑️ Tout a bien été supprimé correctement !"
-          echo "========================================================"
-
-          # Ajout d'un résumé visuel dans l'interface GitHub Actions
-          echo "### 🗑️ Suppression réussie !" >> $GITHUB_STEP_SUMMARY
-          echo "Toutes les ressources ont bien été supprimées correctement." >> $GITHUB_STEP_SUMMARY
+            echo "### 🗑️ Suppression réussie !" >> $GITHUB_STEP_SUMMARY
+            echo "Toutes les ressources ont bien été supprimées correctement." >> $GITHUB_STEP_SUMMARY
+          fi
