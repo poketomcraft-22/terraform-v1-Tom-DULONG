@@ -1,4 +1,4 @@
-name: CI/CD Pipeline - Terraform & Ansible
+name: Destroy - Deploy
 
 on:
   workflow_dispatch:
