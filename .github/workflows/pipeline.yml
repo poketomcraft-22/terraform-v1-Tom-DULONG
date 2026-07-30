@@ -15,14 +15,12 @@ on:
           - destroy
 
 jobs:
-  # 1. Récupérer le code source du dépôt
   checkout:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-  # 2. Installer Terraform
   setup-terraform:
     runs-on: ubuntu-22.04
     steps:
@@ -31,7 +29,6 @@ jobs:
         with:
           terraform_version: "1.5.0"
 
-  # 3. Configurer les identifiants AWS
   aws-credentials:
     runs-on: ubuntu-22.04
     steps:
@@ -43,7 +40,6 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
 
-  # 4. Configurer la clé SSH
   setup-ssh:
     runs-on: ubuntu-22.04
     steps:
@@ -53,7 +49,6 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-  # 5. Exécuter make deploy ou make destroy selon le choix dans l'interface GitHub
   run-make:
     runs-on: ubuntu-22.04
     needs: [checkout, setup-terraform, aws-credentials, setup-ssh]
