@@ -1,4 +1,4 @@
-name: Destroy - Deploy
+name: Destroy - Deploy - +
 
 on:
   workflow_dispatch:
