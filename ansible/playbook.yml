@@ -38,7 +38,7 @@
     - name: Lancer Vaultwarden (Gestionnaire de mots de passe sur port 8080)
       ansible.builtin.docker_container:
         name: vaultwarden
-        image: vaultwarden/server:latest
+        image: vaultwarden/server:1.32.0
         ports:
           - "8080:80"
         restart_policy: always
@@ -46,7 +46,7 @@
     - name: Lancer GLPI (ITSM sur port 8090)
       ansible.builtin.docker_container:
         name: glpi
-        image: glpiproject/glpi:latest
+        image: cablesur/glpi:10.0.16
         ports:
           - "8090:80"
         restart_policy: always
