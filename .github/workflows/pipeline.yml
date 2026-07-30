@@ -19,17 +19,14 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      # 1. Récupérer le code source du dépôt
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Installer Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.5.0"
 
-      # 3. Configurer les identifiants AWS (avec gestion explicite du session token pour le Lab)
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -38,14 +35,12 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
 
-      # 4. Configurer la clé SSH
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-      # 5. Exécuter make deploy ou make destroy selon le choix dans l'interface GitHub
       - name: Run Make Action
         run: |
           if [ "${{ github.event.inputs.action }}" = "destroy" ]; then
