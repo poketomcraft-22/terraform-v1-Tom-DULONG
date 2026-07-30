@@ -3,235 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <title>Tetris Arcade</title>
-    <style>
-        body { background-color: #0f172a; color: white; font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        canvas { border: 2px solid #38bdf8; background: #000; box-shadow: 0 0 20px rgba(56, 189, 248, 0.3); }
-        .btn { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #38bdf8; color: #0f172a; text-decoration: none; font-weight: bold; border-radius: 8px; }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>TETRIS ARCADE</h1>
-    <canvas id="tetris" width="240" height="400"></canvas>
-    <div>
-        <a href="index.html" class="btn">← Retour au portail</a>
+
+    <div class="portal-container">
+        <h1>TETRIS ARCADE</h1>
+        <p class="subtitle">Empile les blocs, fais des lignes et bats ton score !</p>
+
+        <div class="tetris-layout">
+            <!-- Panneau gauche : Réserve (Hold) et Contrôles -->
+            <div class="side-panel">
+                <div class="score-board" style="text-align: center;">
+                    <div style="font-size: 0.85rem; color: #8b949e; margin-bottom: 5px;">RÉSERVE [C]</div>
+                    <canvas id="holdCanvas" width="80" height="80" class="mini-board"></canvas>
+                </div>
+                <div class="score-board">
+                    <div style="font-size: 0.8rem; color: #8b949e;">CONTRÔLES</div>
+                    <div style="font-size: 0.75rem; margin-top: 5px; line-height: 1.4;">
+                        <b>← / →</b> : Déplacer<br>
+                        <b>↓</b> : Descendre vite<br>
+                        <b>Q / D</b> : Tourner<br>
+                        <b>C</b> : Réserver
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plateau principal du jeu -->
+            <div class="card-game">
+                <div class="game-header">
+                    <span>SCORE : <span id="score">0</span></span>
+                    <span>LIGNES : <span id="lines">0</span></span>
+                </div>
+                <canvas id="tetris" width="240" height="400"></canvas>
+            </div>
+
+            <!-- Panneau droit : Prochain bloc -->
+            <div class="side-panel">
+                <div class="score-board" style="text-align: center;">
+                    <div style="font-size: 0.85rem; color: #8b949e; margin-bottom: 5px;">SUIVANT</div>
+                    <canvas id="nextCanvas" width="80" height="80" class="mini-board"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <a href="index.html" class="btn">← Retour au portail</a>
+        </div>
     </div>
-    <script>
-        const canvas = document.getElementById('tetris');
-        const context = canvas.getContext('2d');
-        context.scale(20, 20);
 
-        function arenaSweep() {
-            let rowCount = 1;
-            outer: for (let y = arena.length - 1; y > 0; --y) {
-                for (let x = 0; x < arena[y].length; ++x) {
-                    if (arena[y][x] === 0) {
-                        continue outer;
-                    }
-                }
-                const row = arena.splice(y, 1)[0].fill(0);
-                arena.unshift(row);
-                ++y;
-            }
-        }
-
-        function collide(arena, player) {
-            const [m, o] = [player.matrix, player.pos];
-            for (let y = 0; y < m.length; ++y) {
-                for (let x = 0; x < m[y].length; ++x) {
-                    if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        function createMatrix(w, h) {
-            const matrix = [];
-            while (h--) {
-                matrix.push(new Array(w).fill(0));
-            }
-            return matrix;
-        }
-
-        function createPiece(type) {
-            if (type === 'T') {
-                return [
-                    [0, 0, 0],
-                    [1, 1, 1],
-                    [0, 1, 0],
-                ];
-            } else if (type === 'O') {
-                return [
-                    [2, 2],
-                    [2, 2],
-                ];
-            } else if (type === 'L') {
-                return [
-                    [0, 0, 3],
-                    [3, 3, 3],
-                    [0, 0, 0],
-                ];
-            } else if (type === 'J') {
-                return [
-                    [4, 0, 0],
-                    [4, 4, 4],
-                    [0, 0, 0],
-                ];
-            } else if (type === 'I') {
-                return [
-                    [0, 5, 0, 0],
-                    [0, 5, 0, 0],
-                    [0, 5, 0, 0],
-                    [0, 5, 0, 0],
-                ];
-            } else if (type === 'S') {
-                return [
-                    [0, 6, 6],
-                    [6, 6, 0],
-                    [0, 0, 0],
-                ];
-            } else if (type === 'Z') {
-                return [
-                    [7, 7, 0],
-                    [0, 7, 7],
-                    [0, 0, 0],
-                ];
-            }
-        }
-
-        function drawMatrix(matrix, offset) {
-            matrix.forEach((row, y) => {
-                row.forEach((value, x) => {
-                    if (value !== 0) {
-                        context.fillStyle = colors[value];
-                        context.fillRect(x + offset.x, y + offset.y, 1, 1);
-                    }
-                });
-            });
-        }
-
-        function draw() {
-            context.fillStyle = '#000';
-            context.fillRect(0, 0, canvas.width, canvas.height);
-            drawMatrix(arena, {x: 0, y: 0});
-            drawMatrix(player.matrix, player.pos);
-        }
-
-        function merge(arena, player) {
-            player.matrix.forEach((row, y) => {
-                row.forEach((value, x) => {
-                    if (value !== 0) {
-                        arena[y + player.pos.y][x + player.pos.x] = value;
-                    }
-                });
-            });
-        }
-
-        function playerDrop() {
-            player.pos.y++;
-            if (collide(arena, player)) {
-                player.pos.y--;
-                merge(arena, player);
-                playerReset();
-                arenaSweep();
-            }
-            dropCounter = 0;
-        }
-
-        function playerMove(dir) {
-            player.pos.x += dir;
-            if (collide(arena, player)) {
-                player.pos.x -= dir;
-            }
-        }
-
-        function playerReset() {
-            const pieces = 'TJLOSZI';
-            player.matrix = createPiece(pieces[Math.floor(pieces.length * Math.random())]);
-            player.pos.y = 0;
-            player.pos.x = Math.floor((arena[0].length / 2) - (player.matrix[0].length / 2));
-            if (collide(arena, player)) {
-                arena.forEach(row => row.fill(0));
-            }
-        }
-
-        function playerRotate(dir) {
-            const pos = player.pos.x;
-            let offset = 1;
-            rotate(player.matrix, dir);
-            while (collide(arena, player)) {
-                player.pos.x += offset;
-                offset = -(offset + (offset > 0 ? 1 : -1));
-                if (offset > player.matrix[0].length) {
-                    rotate(player.matrix, -dir);
-                    player.pos.x = pos;
-                    return;
-                }
-            }
-        }
-
-        function rotate(matrix, dir) {
-            for (let y = 0; y < matrix.length; ++y) {
-                for (let x = 0; x < y; ++x) {
-                    [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
-                }
-            }
-            if (dir > 0) {
-                matrix.forEach(row => row.reverse());
-            } else {
-                matrix.reverse();
-            }
-        }
-
-        let dropCounter = 0;
-        let dropInterval = 1000;
-        let lastTime = 0;
-
-        function update(time = 0) {
-            const deltaTime = time - lastTime;
-            lastTime = time;
-            dropCounter += deltaTime;
-            if (dropCounter > dropInterval) {
-                playerDrop();
-            }
-            draw();
-            requestAnimationFrame(update);
-        }
-
-        const colors = [
-            null,
-            '#FF0d72',
-            '#0dc2ff',
-            '#0dff72',
-            '#f538ff',
-            '#ff8e0d',
-            '#ffe138',
-            '#3877ff',
-        ];
-
-        const arena = createMatrix(12, 20);
-        const player = {
-            pos: {x: 0, y: 0},
-            matrix: null,
-        };
-
-        window.addEventListener('keydown', event => {
-            if (event.key === 'ArrowLeft') {
-                playerMove(-1);
-            } else if (event.key === 'ArrowRight') {
-                playerMove(1);
-            } else if (event.key === 'ArrowDown') {
-                playerDrop();
-            } else if (event.key === 'q' || event.key === 'Q') {
-                playerRotate(-1);
-            } else if (event.key === 'd' || event.key === 'D') {
-                playerRotate(1);
-            }
-        });
-
-        playerReset();
-        update();
-    </script>
+    <!-- Script du jeu -->
+    <script src="tetris.js"></script>
 </body>
 </html>

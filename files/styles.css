@@ -21,14 +21,10 @@ body {
 
 .container, .portal-container {
     width: 100%;
-    max-width: 1000px;
+    max-width: 1100px;
     padding: 20px;
     box-sizing: border-box;
     text-align: center;
-}
-
-.portal-container {
-    max-width: 1100px;
 }
 
 .card, .card-game {
@@ -42,6 +38,7 @@ body {
 .card-game {
     max-width: 480px;
     margin: 0 auto;
+    padding: 20px;
 }
 
 .grid {
@@ -162,4 +159,30 @@ canvas {
 .controls-hint {
     font-size: 0.85rem;
     margin-top: 15px;
+}
+
+/* Ajustements spécifiques pour la disposition du Tetris Arcade */
+.tetris-layout {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.side-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 140px;
+    text-align: left;
+}
+
+.mini-board {
+    background-color: #010409;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    display: block;
+    margin: 0 auto;
 }
