@@ -6,3 +6,8 @@ output "ecr_repository_url" {
 output "ecs_cluster_name" {
   value = aws_ecs_cluster.main.name
 }
+
+output "ec2_public_ip" {
+  description = "Adresse IP publique de l'instance EC2"
+  value       = aws_instance.web.public_ip
+}

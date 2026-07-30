@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcade Zone - Snake Nginx Edition</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Écran d'accueil -->
+        <div id="welcome-screen" class="card">
+            <div class="badge">Nginx Powered 🚀</div>
+            <h1>SNAKE ARCADE</h1>
+            <p>Bienvenue sur le serveur le plus rapide de l'IUT. Prêt pour une petite pause gaming ?</p>
+            <button id="start-btn" class="btn">Commencer le jeu 🎮</button>
+        </div>
+
+        <!-- Zone du Jeu (masquée au début) -->
+        <div id="game-screen" class="card hidden">
+            <div class="game-header">
+                <div class="score-board">Score: <span id="score">0</span></div>
+                <div class="score-board">Best: <span id="high-score">0</span></div>
+            </div>
+
+            <canvas id="snakeCanvas" width="400" height="400"></canvas>
+
+            <p class="controls-hint">Utilise les <strong>flèches du clavier</strong> pour te déplacer</p>
+            <button id="restart-btn" class="btn hidden">Recommencer 🔄</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

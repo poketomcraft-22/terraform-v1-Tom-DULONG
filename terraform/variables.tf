@@ -4,8 +4,8 @@ variable "aws_region" {
 }
 
 variable "project_name" {
-  type    = string
-  default = "tp2-docker-ecs"
+  type        = string
+  default     = "tp2-docker-ecs"
   description = "Nom du projet et des ressources associées"
 
   validation {
