@@ -6,7 +6,7 @@ provider "aws" {
 resource "aws_ecr_repository" "app" {
   name                 = var.project_name
   image_tag_mutability = "MUTABLE"
-  force_delete         = true # Permet de supprimer le dépôt même s'il contient des images lors du destroy
+  force_delete         = true
 
   image_scanning_configuration {
     scan_on_push = true
@@ -52,7 +52,6 @@ resource "aws_security_group" "ecs_sg" {
 }
 
 # 4. Définition de la Tâche ECS (Fargate)
-# Note : Dans AWS Learner Lab, on utilise le rôle IAM existant "LabRole"
 data "aws_iam_role" "lab_role" {
   name = "LabRole"
 }
@@ -135,7 +134,7 @@ resource "aws_security_group" "web_sg" {
 # Image Ubuntu 22.04 LTS AMI
 data "aws_ami" "ubuntu" {
   most_recent = true
-  owners      = ["099720109477"] # Canonical
+  owners      = ["099720109477"]
 
   filter {
     name   = "name"
