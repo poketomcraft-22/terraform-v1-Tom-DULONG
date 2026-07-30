@@ -42,14 +42,6 @@
           - "8080:80"
         restart_policy: always
 
-    - name: Lancer GLPI (ITSM sur port 8090)
-      ansible.builtin.docker_container:
-        name: glpi
-        image: glpi/glpi:latest
-        ports:
-          - "8090:80"
-        restart_policy: always
-
     - name: Lancer Kali Linux Web (Kasm sur port 6901)
       ansible.builtin.docker_container:
         name: kali-web
