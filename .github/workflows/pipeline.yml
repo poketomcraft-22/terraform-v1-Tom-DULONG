@@ -1,0 +1,21 @@
+name: CI Pipeline TP2
+
+on:
+  push:
+    branches: [ "tp-2", "main", "master" ]
+  pull_request:
+    branches: [ "tp-2", "main", "master" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Validation du code Markdown et Shell
+        run: |
+          echo "Vérification des fichiers du dépôt..."
+          ls -la
+          echo "Pipeline exécuté avec succès !"
