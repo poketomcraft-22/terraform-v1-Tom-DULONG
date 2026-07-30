@@ -9,44 +9,46 @@ Ce dépôt contient la configuration Terraform et Ansible pour le TP-2.
 - [Make](https://www.gnu.org/software/make/)
 - [pre-commit](https://pre-commit.com/) (optionnel mais recommandé)
 
+---
+
 ## Guide d'utilisation rapide avec Make
 
 Toutes les étapes d'administration du projet sont centralisées via le `Makefile`.
 
 ### 1. Initialiser l'environnement de développement
-
 Pour installer les hooks Git de validation automatique :
 ```bash
 pre-commit install
 ```
 
 ### 2. Valider et formater le code
-
 Pour le formatage récursif de l'IaC et la vérification de la syntaxe :
 ```bash
 make validate
 ```
 
 ### 3. Prévisualiser les changements Terraform
-
 ```bash
 make plan
 ```
 
-### 4. Déployer l'infrastructure
+### 4. Déploiement automatique complet (Infrastructure + Nginx)
+Exécute en une seule commande l'allocation de l'infrastructure AWS et la configuration du serveur web via Ansible :
+```bash
+make deploy
+```
 
+### 5. Déployer l'infrastructure uniquement
 ```bash
 make apply
 ```
 
-### 5. Exécuter la configuration Ansible
-
+### 6. Exécuter la configuration Ansible uniquement
 ```bash
 make ansible-run
 ```
 
-### 6. Nettoyer / Supprimer les ressources
-
+### 7. Nettoyer / Supprimer les ressources
 ```bash
 make destroy
 ```
@@ -61,8 +63,9 @@ make destroy
 | `make fmt` | Formate récursivement le code Terraform (`terraform fmt -recursive`) |
 | `make validate` | Vérifie la validité des fichiers Terraform |
 | `make plan` | Génère le plan de déploiement |
-| `make apply` | Déploie l'infrastructure sur AWS/Cloud |
-| `make ansible-run` | Lance la configuration Ansible |
+| `make deploy` | Déploie l'infrastructure AWS et applique automatiquement le playbook Ansible |
+| `make apply` | Déploie l'infrastructure sur AWS/Cloud uniquement |
+| `make ansible-run` | Lance la configuration Ansible uniquement |
 | `make destroy` | Supprime l'infrastructure créée |
 
 -----------------------------------------------------------------------------------------------
