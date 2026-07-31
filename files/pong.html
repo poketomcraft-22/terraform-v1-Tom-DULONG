@@ -8,10 +8,15 @@
 <body>
     <div class="portal-container">
         <h1>PONG ARCADE</h1>
-        <p class="subtitle">Affronte le Bot !</p>
+        <p class="subtitle">Affronte le Bot ! Premier à 5 points gagne.</p>
         <div class="card-game">
+            <div class="game-header">
+                <span>Toi : <span id="playerScore">0</span></span>
+                <span>Bot : <span id="botScore">0</span></span>
+            </div>
             <canvas id="pongCanvas" width="400" height="300"></canvas>
             <p class="controls-hint">Utilise les <strong>flèches Haut / Bas</strong></p>
+            <button id="pongRestart" class="btn hidden" style="margin-top: 15px;">Rejouer 🔄</button>
         </div>
         <div style="margin-top: 20px;">
             <a href="index.html" class="btn">← Retour au portail</a>

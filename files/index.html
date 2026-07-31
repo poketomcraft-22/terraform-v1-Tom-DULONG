@@ -1,71 +1,88 @@
-<div class="grid">
-    <!-- Tetris -->
-    <div class="card">
-        <div>
-            <span class="badge">ARCADE</span>
-            <h3>Tetris Arcade</h3>
-            <p>Empile les blocs, fais des lignes et bats ton score avec la réserve et le bloc suivant !</p>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Portail Arcade</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="portal-container">
+        <h1>PORTAIL ARCADE</h1>
+        <p class="subtitle">Choisis ton jeu et commence à jouer !</p>
+
+        <div class="grid">
+            <!-- Tetris -->
+            <div class="card">
+                <div>
+                    <span class="badge">ARCADE</span>
+                    <h3>Tetris Arcade</h3>
+                    <p>Empile les blocs, fais des lignes et bats ton score avec la réserve et le bloc suivant !</p>
+                </div>
+                <a href="tetris.html" class="btn">Jouer à Tetris</a>
+            </div>
+
+            <!-- Snake -->
+            <div class="card">
+                <div>
+                    <span class="badge" style="background: #238636; color: white;">CLASSIQUE</span>
+                    <h3>Snake Retro</h3>
+                    <p>Mange des pommes, grandis sans toucher les murs ou ta queue et fais le meilleur score !</p>
+                </div>
+                <a href="snake.html" class="btn">Jouer à Snake</a>
+            </div>
+
+            <!-- 2048 -->
+            <div class="card">
+                <div>
+                    <span class="badge" style="background: rgba(255,142,13,0.1); color: #ff8e0d; border-color: #ff8e0d;">PUZZLE</span>
+                    <h3>2048</h3>
+                    <p>Glisse les cases, fusionne les nombres et atteins la tuile magique 2048 !</p>
+                </div>
+                <a href="2048.html" class="btn">Jouer à 2048</a>
+            </div>
+
+            <!-- Space Invaders -->
+            <div class="card">
+                <div>
+                    <span class="badge" style="background: rgba(255,0,85,0.1); color: #ff0055; border-color: #ff0055;">SHOOTER</span>
+                    <h3>Space Invaders</h3>
+                    <p>Défends la Terre contre la menace venue de l'espace dans ce grand classique.</p>
+                </div>
+                <a href="spaceinvaders.html" class="btn">Jouer à Space Invaders</a>
+            </div>
+
+            <!-- Morpion -->
+            <div class="card">
+                <div>
+                    <span class="badge" style="background: rgba(96,239,255,0.1); color: #60efff; border-color: #60efff;">STRATÉGIE</span>
+                    <h3>Morpion vs Bot</h3>
+                    <p>Aligne 3 symboles face à un bot redoutable. Sauras-tu le battre ?</p>
+                </div>
+                <a href="morpion.html" class="btn">Jouer au Morpion</a>
+            </div>
+
+            <!-- Puissance 4 -->
+            <div class="card">
+                <div>
+                    <span class="badge" style="background: rgba(56,119,255,0.1); color: #3877ff; border-color: #3877ff;">STRATÉGIE</span>
+                    <h3>Puissance 4 vs Bot</h3>
+                    <p>Aligne 4 jetons horizontalement, verticalement ou en diagonale avant le bot.</p>
+                </div>
+                <a href="puissance4.html" class="btn">Jouer au Puissance 4</a>
+            </div>
+
+            <!-- Pong -->
+            <div class="card">
+                <div>
+                    <span class="badge" style="background: rgba(0,255,135,0.1); color: #00ff87; border-color: #00ff87;">RETRO</span>
+                    <h3>Pong vs Bot</h3>
+                    <p>Le pionnier du jeu vidéo. Affronte l'intelligence artificielle à la balle rebondissante.</p>
+                </div>
+                <a href="pong.html" class="btn">Jouer à Pong</a>
+            </div>
         </div>
-        <a href="tetris.html" class="btn">Jouer à Tetris</a>
     </div>
 
-    <!-- Snake -->
-    <div class="card">
-        <div>
-            <span class="badge" style="background: #238636; color: white;">CLASSIQUE</span>
-            <h3>Snake Retro</h3>
-            <p>Mange des pommes, grandis sans toucher les murs ou ta queue et fais le meilleur score !</p>
-        </div>
-        <a href="snake.html" class="btn">Jouer à Snake</a>
-    </div>
-
-    <!-- 2048 -->
-    <div class="card">
-        <div>
-            <span class="badge" style="background: rgba(255,142,13,0.1); color: #ff8e0d; border-color: #ff8e0d;">PUZZLE</span>
-            <h3>2048</h3>
-            <p>Glisse les cases, fusionne les nombres et atteins la tuile magique 2048 !</p>
-        </div>
-        <a href="2048.html" class="btn">Jouer à 2048</a>
-    </div>
-
-    <!-- Space Invaders -->
-    <div class="card">
-        <div>
-            <span class="badge" style="background: rgba(255,0,85,0.1); color: #ff0055; border-color: #ff0055;">SHOOTER</span>
-            <h3>Space Invaders</h3>
-            <p>Défends la Terre contre la menace venue de l'espace dans ce grand classique.</p>
-        </div>
-        <a href="spaceinvaders.html" class="btn">Jouer à Space Invaders</a>
-    </div>
-
-    <!-- Morpion -->
-    <div class="card">
-        <div>
-            <span class="badge" style="background: rgba(96,239,255,0.1); color: #60efff; border-color: #60efff;">STRATÉGIE</span>
-            <h3>Morpion vs Bot</h3>
-            <p>Aligne 3 symboles face à un bot redoutable. Sauras-tu le battre ?</p>
-        </div>
-        <a href="morpion.html" class="btn">Jouer au Morpion</a>
-    </div>
-
-    <!-- Puissance 4 -->
-    <div class="card">
-        <div>
-            <span class="badge" style="background: rgba(56,119,255,0.1); color: #3877ff; border-color: #3877ff;">STRATÉGIE</span>
-            <h3>Puissance 4 vs Bot</h3>
-            <p>Aligne 4 jetons horizontalement, verticalement ou en diagonale avant le bot.</p>
-        </div>
-        <a href="puissance4.html" class="btn">Jouer au Puissance 4</a>
-    </div>
-
-    <!-- Pong -->
-    <div class="card">
-        <div>
-            <span class="badge" style="background: rgba(0,255,135,0.1); color: #00ff87; border-color: #00ff87;">RETRO</span>
-            <h3>Pong vs Bot</h3>
-            <p>Le pionnier du jeu vidéo. Affronte l'intelligence artificielle à la balle rebondissante.</p>
-        </div>
-        <a href="pong.html" class="btn">Jouer à Pong</a>
-    </div>
-</div>
+</body>
+</html>

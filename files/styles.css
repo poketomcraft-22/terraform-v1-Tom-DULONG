@@ -1,5 +1,135 @@
-/* --- Styles additionnels pour les nouveaux jeux --- */
+:root {
+    --bg-color: #0d1117;
+    --card-bg: #161b22;
+    --text-color: #f0f6fc;
+    --text-secondary: #8b949e;
+    --accent-color: #58a6ff;
+    --border-color: #30363d;
+}
 
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.portal-container {
+    max-width: 900px;
+    width: 100%;
+    text-align: center;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 5px;
+    color: var(--accent-color);
+    letter-spacing: 2px;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    text-align: left;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent-color);
+}
+
+.card h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.card p {
+    color: var(--text-secondary);
+    font-size: 0.90rem;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border-radius: 4px;
+    background: rgba(88, 166, 255, 0.1);
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
+    margin-bottom: 12px;
+}
+
+.btn {
+    display: inline-block;
+    background-color: #238636;
+    color: white;
+    text-decoration: none;
+    text-align: center;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn:hover {
+    background-color: #2ea043;
+}
+
+/* Styles communs pour les pages de jeux */
+.card-game {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 0 auto;
+    width: fit-content;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-around;
+    font-weight: bold;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.controls-hint {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-top: 15px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Grilles additionnelles (Morpion, Puissance 4, 2048) */
 .morpion-grid, .p4-grid {
     display: grid;
     gap: 10px;
