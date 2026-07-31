@@ -10,9 +10,8 @@ terraform {
 
   backend "s3" {
     bucket       = "tp-2-bucket-tom-dulong"
-    key          = "dev-aws/terraform.tfstate"
+    key          = "terraform.tfstate"
     region       = "us-east-1"
     encrypt      = true
-    use_lockfile = true
   }
 }
