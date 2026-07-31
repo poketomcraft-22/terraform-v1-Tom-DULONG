@@ -13,8 +13,23 @@ on:
           - destroy
 
 jobs:
-  # 1. Job de validation obligatoire (Étape 1 du TP : fmt, tflint, trivy)
-  validate:
+  # 1. Job de validation du formatage Terraform (fmt)
+  validate-fmt:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.6"
+
+      - name: Run Terraform Format Check
+        run: make fmt
+
+  # 2. Job de validation avec TFLint
+  validate-tflint:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
@@ -30,6 +45,16 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Run TFLint
+        run: make tflint
+
+  # 3. Job d'analyse de sécurité avec Trivy
+  validate-trivy:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Install Trivy Directly
         run: |
           sudo apt-get update
@@ -39,18 +64,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y trivy
 
-      - name: Run Terraform Format Check
-        run: make fmt
-
-      - name: Run TFLint
-        run: make tflint
-
       - name: Run Trivy Security Scan
         run: make trivy
 
-  # 2. Job d'initialisation et configuration commune
+  # 4. Job d'initialisation et configuration commune
   setup:
-    needs: validate
+    needs: [validate-fmt, validate-tflint, validate-trivy]
     runs-on: ubuntu-22.04
     outputs:
       selected-action: ${{ inputs.action }}
@@ -78,9 +97,9 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keygen -y -f ~/.ssh/id_ed25519 > ~/.ssh/id_ed25519.pub
 
-  # 3. Job de Déploiement (S'exécute uniquement si 'deploy' est choisi et si la validation est OK)
+  # 5. Job de Déploiement
   deploy:
-    needs: [validate, setup]
+    needs: [validate-fmt, validate-tflint, validate-trivy, setup]
     if: ${{ inputs.action == 'deploy' }}
     runs-on: ubuntu-22.04
     steps:
@@ -131,9 +150,9 @@ jobs:
           echo "- **Adresse IP publique :** \`$PUBLIC_IP\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Lien d'accès du site :** [http://$PUBLIC_IP](http://$PUBLIC_IP)" >> $GITHUB_STEP_SUMMARY
 
-  # 4. Job de Destruction (S'exécute uniquement si 'destroy' est choisi)
+  # 6. Job de Destruction
   destroy:
-    needs: [validate, setup]
+    needs: [validate-fmt, validate-tflint, validate-trivy, setup]
     if: ${{ inputs.action == 'destroy' }}
     runs-on: ubuntu-22.04
     steps:
