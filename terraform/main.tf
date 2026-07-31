@@ -51,7 +51,7 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
-# 4. Définition de la Tâche ECS (Fargate)
+# 4. Définition de la Tâche ECS
 data "aws_iam_role" "lab_role" {
   name = "LabRole"
 }
