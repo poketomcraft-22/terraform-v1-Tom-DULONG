@@ -1,12 +1,14 @@
-# TP-2 : Infrastructure & Déploiement Cloud
+# TP-2
 
-Ce dépôt contient la configuration Terraform et Ansible pour le TP-2.
+Ce dépôt contient la configuration Terraform, Ansible et les scripts d'automatisation CI/CD pour le TP-2.
 
 ## Prérequis
 
 - [Terraform](https://www.terraform.io/) (>= 1.5.0)
 - [Ansible](https://www.ansible.com/)
 - [Make](https://www.gnu.org/software/make/)
+- [TFLint](https://github.com/terraform-linters/tflint) (analyse de code Terraform)
+- [Trivy](https://aquasecurity.github.io/trivy/) (analyse de sécurité)
 - [pre-commit](https://pre-commit.com/) (optionnel mais recommandé)
 
 ---
@@ -21,10 +23,13 @@ Pour installer les hooks Git de validation automatique :
 pre-commit install
 ```
 
-### 2. Valider et formater le code
-Pour le formatage récursif de l'IaC et la vérification de la syntaxe :
+### 2. Valider, formater et auditer le code (Sécurité & Qualité)
+Pour lancer le formatage, la validation syntaxique, TFLint et Trivy localement :
 ```bash
+make fmt
 make validate
+make tflint
+make trivy
 ```
 
 ### 3. Prévisualiser les changements Terraform
@@ -62,6 +67,8 @@ make destroy
 | `make help` | Affiche la liste des commandes disponibles |
 | `make fmt` | Formate récursivement le code Terraform (`terraform fmt -recursive`) |
 | `make validate` | Vérifie la validité des fichiers Terraform |
+| `make tflint` | Analyse la qualité et les erreurs de configuration avec TFLint |
+| `make trivy` | Recherche les vulnérabilités de sécurité avec Trivy |
 | `make plan` | Génère le plan de déploiement |
 | `make deploy` | Déploie l'infrastructure AWS et applique automatiquement le playbook Ansible |
 | `make apply` | Déploie l'infrastructure sur AWS/Cloud uniquement |

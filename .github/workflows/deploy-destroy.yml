@@ -1,4 +1,4 @@
-name: Deploy & Destroy
+name: PipeLine de Tom DULONG
 
 on:
   workflow_dispatch:
@@ -13,8 +13,38 @@ on:
           - destroy
 
 jobs:
-  # 1. Job d'initialisation et configuration commune
+  # 1. Job de validation obligatoire (Étape 1 du TP : fmt, tflint, trivy)
+  validate:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.6"
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Trivy
+        uses: aquasecurity/setup-trivy@v0.16.0
+
+      - name: Run Terraform Format Check
+        run: make fmt
+
+      - name: Run TFLint
+        run: make tflint
+
+      - name: Run Trivy Security Scan
+        run: make trivy
+
+  # 2. Job d'initialisation et configuration commune
   setup:
+    needs: validate
     runs-on: ubuntu-22.04
     outputs:
       selected-action: ${{ inputs.action }}
@@ -42,9 +72,9 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keygen -y -f ~/.ssh/id_ed25519 > ~/.ssh/id_ed25519.pub
 
-  # 2. Job de Déploiement (S'exécute uniquement si 'deploy' est choisi)
+  # 3. Job de Déploiement (S'exécute uniquement si 'deploy' est choisi et si la validation est OK)
   deploy:
-    needs: setup
+    needs: [validate, setup]
     if: ${{ inputs.action == 'deploy' }}
     runs-on: ubuntu-22.04
     steps:
@@ -95,9 +125,9 @@ jobs:
           echo "- **Adresse IP publique :** \`$PUBLIC_IP\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Lien d'accès du site :** [http://$PUBLIC_IP](http://$PUBLIC_IP)" >> $GITHUB_STEP_SUMMARY
 
-  # 3. Job de Destruction (S'exécute uniquement si 'destroy' est choisi)
+  # 4. Job de Destruction (S'exécute uniquement si 'destroy' est choisi)
   destroy:
-    needs: setup
+    needs: [validate, setup]
     if: ${{ inputs.action == 'destroy' }}
     runs-on: ubuntu-22.04
     steps:
