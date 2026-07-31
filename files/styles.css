@@ -47,7 +47,6 @@
     font-size: 0;
 }
 
-/* Grille 2048 */
 .grid-2048 {
     display: grid;
     grid-template-columns: repeat(4, 80px);
