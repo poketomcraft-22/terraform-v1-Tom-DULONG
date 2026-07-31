@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Cookie Clicker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="portal-container cookie-container">
+        <h1>COOKIE CLICKER</h1>
+        <p class="subtitle">Clique, achète et deviens le roi du cookie !</p>
+        <div class="card-game" style="min-width: 320px;">
+            <div class="game-header">
+                <span>Cookies : <span id="score">0</span></span>
+                <span>Par sec : <span id="cps">0</span></span>
+            </div>
+
+            <button id="cookieBtn" class="cookie-btn">🍪</button>
+
+            <div class="shop-container">
+                <button id="buyCursor" class="shop-btn" onclick="buyCursor()">
+                    <span>Curseur (+1/s)</span>
+                    <span id="cursorCost">15 🍪</span>
+                </button>
+                <button id="buyGrandma" class="shop-btn" onclick="buyGrandma()">
+                    <span>Grand-mère (+5/s)</span>
+                    <span id="grandmaCost">100 🍪</span>
+                </button>
+            </div>
+
+            <button onclick="resetGame()" class="btn" style="margin-top: 15px; background-color: #da3633;">Remettre à zéro 🔄</button>
+        </div>
+        <div style="margin-top: 20px;">
+            <a href="index.html" class="btn">← Retour au portail</a>
+        </div>
+    </div>
+    <script src="cookiecliker.js"></script>
+</body>
+</html>

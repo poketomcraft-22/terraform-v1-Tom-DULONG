@@ -4,19 +4,26 @@ const scoreEl = document.getElementById('score');
 const restartBtn = document.getElementById('restartBtn');
 
 let score = 0;
-let player, bullets, aliens, alienDir, isGameOver;
+let player, bullets, aliens, alienDir, isGameOver, wave;
 
 function initGame() {
     score = 0;
+    wave = 1;
     scoreEl.innerText = score;
     player = { x: 180, y: 360, width: 40, height: 20, dx: 0 };
     bullets = [];
-    aliens = [];
-    alienDir = 0.7; // Vitesse des aliens ralentie
     isGameOver = false;
     restartBtn.classList.add('hidden');
+    spawnWave();
+}
 
-    for (let r = 0; r < 4; r++) {
+function spawnWave() {
+    aliens = [];
+    alienDir = 0.4; // Vitesse de déplacement horizontale très lente au début
+    // Une seule ligne d'aliens au départ pour ne pas submerger le joueur, qui augmente un tout petit peu par vague
+    let rowsCount = Math.min(2 + Math.floor(wave / 2), 4);
+
+    for (let r = 0; r < rowsCount; r++) {
         for (let c = 0; c < 8; c++) {
             aliens.push({ x: c * 45 + 35, y: r * 30 + 30, width: 30, height: 20, alive: true });
         }
@@ -59,7 +66,7 @@ function update() {
         a.x += alienDir;
         if (a.x <= 10 || a.x + a.width >= canvas.width - 10) hitEdge = true;
 
-        // Si les aliens touchent le bas ou le joueur
+        // Si les aliens touchent le joueur -> Fin de partie
         if (a.y + a.height >= player.y) {
             isGameOver = true;
         }
@@ -68,19 +75,24 @@ function update() {
             if (b.x > a.x && b.x < a.x + a.width && b.y > a.y && b.y < a.y + a.height) {
                 a.alive = false;
                 bullets.splice(bIdx, 1);
-                score += 100;
+                score += 50;
                 scoreEl.innerText = score;
             }
         });
     });
 
     if (hitEdge) {
-        alienDir *= -1.1; // Accélère très légèrement à chaque rebond mural
-        aliens.forEach(a => a.y += 15);
+        alienDir *= -1;
+        aliens.forEach(a => a.y += 8); // Descente très lente et progressive des lignes
     }
 
-    if (allDead || isGameOver) {
-        isGameOver = true;
+    // Si tous les aliens sont morts, on relance une nouvelle vague un peu plus corsée en boucle
+    if (allDead) {
+        wave++;
+        spawnWave();
+    }
+
+    if (isGameOver) {
         restartBtn.classList.remove('hidden');
     }
 }
