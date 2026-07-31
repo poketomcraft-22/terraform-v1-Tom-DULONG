@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Morpion Arcade</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="portal-container">
+        <h1>MORPION ARCADE</h1>
+        <p class="subtitle">Bats le Bot (Tu es les ❌)</p>
+        <div class="card-game">
+            <div class="game-header"><span id="status">À toi de jouer !</span></div>
+            <div class="morpion-grid" id="morpionGrid">
+                <div class="morpion-cell" data-index="0"></div>
+                <div class="morpion-cell" data-index="1"></div>
+                <div class="morpion-cell" data-index="2"></div>
+                <div class="morpion-cell" data-index="3"></div>
+                <div class="morpion-cell" data-index="4"></div>
+                <div class="morpion-cell" data-index="5"></div>
+                <div class="morpion-cell" data-index="6"></div>
+                <div class="morpion-cell" data-index="7"></div>
+                <div class="morpion-cell" data-index="8"></div>
+            </div>
+            <button id="restartMorpion" class="btn hidden">Recommencer 🔄</button>
+        </div>
+        <div style="margin-top: 20px;">
+            <a href="index.html" class="btn">← Retour au portail</a>
+        </div>
+    </div>
+    <script src="morpion.js"></script>
+</body>
+</html>
