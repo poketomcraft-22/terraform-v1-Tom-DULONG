@@ -9,9 +9,9 @@ terraform {
   }
 
   backend "s3" {
-    bucket       = "tp-2-bucket-tom-dulong"
-    key          = "terraform.tfstate"
-    region       = "us-east-1"
-    encrypt      = true
+    bucket  = "tp-2-bucket-tom-dulong"
+    key     = "terraform.tfstate"
+    region  = "us-east-1"
+    encrypt = true
   }
 }
